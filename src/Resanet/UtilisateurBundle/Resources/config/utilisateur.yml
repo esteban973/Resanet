@@ -1,0 +1,28 @@
+Admin_listeUtilisateur:
+    pattern:  /liste
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:listeUtilisateur }
+
+Admin_listeUtilisateurJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:listeUtilisateurJson }
+
+
+Admin_enregistrerUtilisateur:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:enregistrerUtilisateur }
+
+Admin_supprimerUtilisateur:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:supprimerUtilisateur }
+    
+Admin_supprFormUtilisateur:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:supprimerFormUtilisateur }
+    
+Admin_ajouterUtilisateur:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:ajouterUtilisateur }
+    
+Admin_updateUtilisateur:
+    pattern:  /update
+    defaults: { _controller: ResanetUtilisateurBundle:Utilisateur:updateUtilisateur }

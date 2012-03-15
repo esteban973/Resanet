@@ -1,0 +1,36 @@
+{% extends 'ResanetSiteBundle:Default:index.html.twig' %}
+
+{% block titre %}Confirmation{% endblock %}
+    
+{%block contenu%}
+
+<div class="grid_10">
+    <h1>Confirmation</h1>
+<div class="reussite">
+    Votre réservation s'est finalisée. 
+</div>
+</div>
+
+<div class="clear"></div>
+
+<div class="grid_10">
+<h2>Réservation n° {{resa.id}}</h2>
+Votre réservation est confirmée pour la période du {{resa.dateArrivee |date('d-m-Y')}} au {{resa.dateDepart |date('d-m-Y')}}.
+<h2>Chambres</h2>
+{% for chambre in resa.chambres%}
+<p>{{chambre.categorie.nom}}</p>
+{% endfor%}
+<h2>Options</h2>
+{% for option in resa.reservationOptionRes%}
+<p>{{option.optionRes.nom}} Quantité : {{option.quantite}}</p>
+{% else %}
+Aucune
+{% endfor%}
+<h2>Total : {{resa.getTotal}}€</h2>
+Montant total réglé par Paypal le {{resa.dateCreation |date('d-m-Y')}}
+</div>
+
+<div class="clear"></div>
+
+
+{%endblock%}

@@ -1,0 +1,28 @@
+Admin_listeIndispo:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Indispo:listeIndispo }
+
+Admin_listeIndispoJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Indispo:listeIndispoJson }
+
+
+Admin_enregistrerIndispo:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Indispo:enregistrerIndispo }
+
+Admin_supprimerIndispo:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Indispo:supprimerIndispo }
+    
+Admin_supprFormIndispo:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Indispo:supprimerFormIndispo }
+    
+Admin_ajouterIndispo:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Indispo:ajouterIndispo }
+    
+Admin_updateIndispo:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Indispo:updateIndispo }

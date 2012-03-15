@@ -1,0 +1,7 @@
+ResanetStatBundle_homepage:
+    pattern:  /stat
+    defaults: { _controller: ResanetStatBundle:Default:index }
+
+ResanetStatBundle_maj:
+    pattern:  /stat/maj
+    defaults: { _controller: ResanetStatBundle:Default:maj }

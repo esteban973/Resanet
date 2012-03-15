@@ -1,0 +1,32 @@
+Admin_listeCoupon:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Coupon:listeCoupon }
+
+Admin_listeCouponJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Coupon:listeCouponJson }
+
+
+Admin_enregistrerCoupon:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Coupon:enregistrerCoupon }
+
+Admin_supprimerCoupon:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Coupon:supprimerCoupon }
+    
+Admin_supprFormCoupon:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Coupon:supprimerFormCoupon }
+    
+Admin_ajouterCoupon:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Coupon:ajouterCoupon }
+    
+Admin_updateCoupon:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Coupon:updateCoupon }
+
+Admin_verifieCoupon:
+    pattern:  /verifie
+    defaults: { _controller: ResanetMainBundle:Coupon:verifieCoupon }

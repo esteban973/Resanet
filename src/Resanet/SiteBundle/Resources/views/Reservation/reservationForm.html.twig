@@ -1,0 +1,422 @@
+{% extends 'ResanetSiteBundle:Default:index.html.twig' %}
+{% import "ResanetSiteBundle:Macro:loading.html.twig" as loading %}
+{% block titre %}Réservez en ligne{% endblock %}
+{% block stylesheets %}
+{{ parent()}}
+<script type="text/javascript" src="{{asset('bundles/resanetsite/js/jquery-ui-1.8.16.custom.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetsite/js/jquery.tmpl.js')}}"></script>
+<link rel="stylesheet" type="text/css" href="{{asset('bundles/resanetsite/css/jquery-ui-1.8.16.custom.css')}}" media="all" />
+
+{% endblock %}
+
+    
+{%block contenu%}
+<h1>Réserver en ligne</h1>
+{% if erreur is defined %}
+<div class="alerte">Votre réservation n'a pas pu se finaliser correctement. {{erreur}}
+</div>
+
+{% endif%}
+<form name="reservation" id="reservation" method="post" action="{{path('ResanetSiteBundle_reservationEnregistrer')}}">
+    <input type="hidden" value="{{token}}" name="token">
+    <div id="date" class="grid_10">
+<h2>Dates</h2>
+<label>Date d'arrivée</label><input type="text" name="dateArrivee" id="dateArrivee" value="15/01/2012">
+<label>Date de départ</label><input type="text" name="dateDepart" id="dateDepart" value="18/01/2012">
+<span id="rechercher">Rechercher les disponibilités</span><span id="loadDispo">{{loading.loading()}}</span>
+</div>
+<div id="resultats">
+<div id="resultat">
+    <div id="disponibilites" class="grid_5">
+        <h2>Disponibilités</h2>
+        <div id="categories">
+        </div>
+    </div>
+
+    <div id="options" class="grid_5">
+        <h2>Options</h2>
+        {% for option in options%}
+        <div data-id="{{option.id}}" data-prix="{{option.prix}}" data-nom="{{option.nom}}" class="option">
+            <div>
+                <label>{{option.nom}} {{option.prix}} €</label>
+                <input type="number" class="nbOpt" name="nombreOption[{{option.id}}]" id="nombreOption{{option.id}}" value="0" />
+            </div>
+            <div>
+               Description : {{option.description}}
+             </div>
+        </div>
+        {% else %}
+        Aucune option n'est pour le moment disponible
+        {% endfor%}
+    </div>
+</div>
+<div class="clear"></div>
+<div id="coupon" class="grid_5">
+    <h2>Coupon de réduction</h2>
+    <div>
+        <label>Renseignez votre code promo</label>
+        <input type="text" name="codepromo" id="codepromo"/>
+        <span id="ajoutCoupon">Ajouter un coupon</span><span id="loadCoup">{{loading.loading()}}</span>
+    </div>
+</div>
+
+<div id="montant" class="grid_5">
+    <h2>Total</h2>
+    <div>
+        <input type="text" id="total" value="0" readonly="true"/>
+    </div>
+</div>
+
+<div class="clear"></div>
+<div id="coordonnees" class="grid_10">
+    <h2>Vos informations</h2>
+    <div class="grid_5">
+        <div>
+            <label for="">Nom</label>
+            <input type="text" name="nomClient" id="nomClient" />
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+            <div>
+          
+            <label for="">Prénom</label>
+            <input type="text" name="prenomClient" id="prenomClient" />
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+        <div>
+            <label for="">Société</label>
+            <input type="text" name="societeClient" id="societeClient" />
+        </div>
+            <div>
+            <label for="">Téléphone</label>
+            <input type="text" name="telephoneClient" id="telephoneClient" /></input>
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+                
+     </div>
+    <div class="grid_5">
+        <div>
+            <label for="">Adresse</label>
+            <input type="text" name="adresseClient" id="adresseClient" /></input>
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+        <div>
+            <label for="">Code Postal</label>
+            <input type="text" name="cpClient" id="cpClient" /></input>
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+        <div>
+            <label for="">Ville</label>
+            <input type="text" name="villeClient" id="villeClient" /></input>
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+        <div>
+            <label for="">Pays</label>
+            <input type="text" name="paysClient" id="paysClient" /></input>
+            <img class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img class="alerteForm" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+        
+     </div>
+</div>
+
+<div class="clear"></div>
+<div class="grid_10">
+    <div id="emails" class="grid_5">
+        <div>
+            <label for="">Email</label>
+            <input type="text" name="emailClient" id="emailClient" /></input>
+            <img id="emailReussite" class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img id="emailAlerte" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+        </div>
+        <div>
+            <label for="">Confirmez votre Email</label>
+            <input type="text" id="emailTestClient" /></input>
+            <img id="emailTestReussite" class="reussiteForm" src="{{asset('bundles/resanetsite/images/approved.png')}}">
+            <img id="emailTestAlerte" src="{{asset('bundles/resanetsite/images/alert.png')}}">
+         </div>
+    </div>
+    <div class="grid_5">
+        <label>Commentaires</label>
+        <textarea name="commentaires"></textarea>
+    </div>
+</div>
+<div class="clear"></div>
+<div class="grid_10">
+    <div>
+        <input type="checkbox" id="condition"> J'ai bien pris connaissance du contrat de vente
+    </div>
+    <div id="valider">Passer au paiement</div>
+</div>
+</div>
+<div class="clear"></div>
+    </form>
+<!--------------------------------- TEMPLATES JQUERY pour mettre en forme les données passées en Json*-->
+
+<!-- template pour les catégories -->
+<script id="choixChbreTemplate" type="text/x-jquery-tmpl">
+    <div data-id="${idCategorie}" data-prix="${prixCategorie}" data-dispo="${nbChambresCategorie}" data-nom="${nomCategorie}" class="chambre">
+        <div style="float:left; margin: 0 10px 10px 0"><img src="{{asset('uploader/img/thumbnail/')}}${imageCategorie}"></div>
+        <div><label>${nomCategorie} ${prixCategorie}€</label><input type="number" class="nbCat" name="nombreCategorie[${idCategorie}]" value="0" /></div>
+        <div>Description : ${descriptionCategorie} // Nombre de chambres disponibles: ${nbChambresCategorie}</div>
+    </div>
+</script>
+{%endblock %}
+
+{%block javascripts%}
+<script>
+//-------------------------INITIALISATION DES VARIABLES-----------------------
+    $('#dateArrivee').datepicker();
+    $('#dateDepart').datepicker();
+    $('#rechercher').button({ icons: {primary:'ui-icon-search'}});
+    $('#ajoutCoupon').button({text:false, icons: {primary:'ui-icon-check'}});
+    $('#loadCoup').hide();
+    $('#loadDispo').hide();
+    $('#resultats').hide();
+    $('img','#coordonnees').hide();
+    $('img','#emails').hide();
+    $('#valider').button();
+    var pourcentageCoupon=0;
+    var montantCoupon=0;
+//--------------------------EVENEMENTS--------------------------------------
+
+$('#rechercher').click(function(){
+    chercherDispo();
+});
+
+$(".nbOpt").click(function(){
+      calculTotal();
+});
+
+$(".nbOpt").keyup(function(){
+       calculTotal();
+});
+
+$("#emailTestClient").keyup(function(){
+        checkEmail();
+});
+
+$("#emailTestClient").focus(function(){
+        checkEmail();
+});
+
+$("#emailClient").keyup(function(){
+        checkEmail();
+});
+
+$("#emailClient").focus(function(){
+        checkEmail();
+});
+
+$("#valider").click(function(){
+        envoyer();
+});
+
+//------------------------ ENVOI DE LA REQUETE ---------------------
+function envoyer(){
+    if (!verificationDates()) return false;
+    if (!verifChambres()) return false;
+    if (!verifCoordonnees()) return false;
+    if (!($('#condition').is(':checked') )) {
+         alerte('Veuillez accepter les conditions des ventes');
+         return false;
+    }
+    $('#reservation').submit();
+}
+
+// ------------------------VERIFICATION DES CHAMBRES----------------------
+// verifie qu'au moins une chambre est sélectionnée
+function verifChambres(){
+    var bool=false;    
+    $('.chambre').each(function(){
+            val=$(this).find('.nbCat').val();
+            if (val!=0) bool=true;
+    });
+    if (!bool) alerte('Vous devez sélectionner au moins une chambre');
+    return bool;
+}
+
+//------------------------VERIFICATION DES COORDONNEES----------------------
+function verifCoordonnees(){
+    $('img','#coordonnees').hide();
+    var bool=true;
+    $('#coordonnees>div>div').each(function(){
+         if ($(this).find('input').val()=='') {
+            $(this).find('.alerteForm').show(); 
+            bool=false;
+           } else {
+            $(this).find('.reussiteForm').show(); }
+    });
+    
+    if (!checkEmail()) bool=false;
+    return bool;
+}
+
+
+
+//------------------------ VERIFICATION DES EMAILS--------------------------
+// fonction qui va faire apparaitre les images 
+function checkEmail(){
+    var reg = /^[a-z0-9._-]+@[a-z0-9.-]{2,}[.][a-z]{2,3}$/
+    $('img','#emails').hide();
+    //verifie le champ #emailClient
+    email=$('#emailClient').val();
+     emailTest=$('#emailTestClient').val();
+        
+    if (email.match(reg)&&email!=''){
+        boolEmail=true;
+        $('#emailReussite').show();
+    } else {
+        boolEmail=false;
+        $('#emailAlerte').show();
+    }
+    if ((emailTest.match(reg))&&(emailTest!='')&&(email==emailTest)){
+        boolEmailTest=true;
+        $('#emailTestReussite').show();
+    } else {
+        boolEmailTest=false;
+        $('#emailTestAlerte').show();
+    }
+    if ((boolEmail)&&(boolEmailTest)) return true
+     else return false
+}
+
+//--------------------------VERIFICATION DATES -----------------------------
+// fonction qui verfie si les dates de départ et d'arrivée sont remplies et sont conformes
+function verificationDates(){
+   dateAuj="{{"now"|date('d/m/Y')}}";
+   if (!verifInputDate($('#dateArrivee'),'d\'arrivée')) return false;
+   if (!verifInputDate($('#dateDepart'),'de départ')) return false;
+   if (compareDates($('#dateArrivee').val(),$('#dateDepart').val())>=0 ){
+        alerte('La date de départ doit être supérieure à la date d\'arrivée');
+         return false
+    }
+   if (compareDates(dateAuj,$('#dateArrivee').val())>0 ){
+        alerte('Vous pouvez seulement réserver que pour des dates postérieures à aujourd\'hui.');
+         return false
+   }
+    return true;
+}
+
+//--------------------------CHERCHER LES DISPOS -----------------------------
+// requete en ajax vers le serveur qui renvoie un array en json des catégories tarifs, nb de chambres dispo
+
+function chercherDispo(){
+    
+    if (!verificationDates()) return false;
+        d1=changeFormat($('#dateArrivee').val());
+        d2=changeFormat($('#dateDepart').val());
+        $('#resultats').hide();
+        $('#loadDispo').show();
+        $.ajax({
+            data:"dateArrivee="+d1+"&dateDepart="+d2, 
+            url: "{{path('ResanetSiteBundle_nbChambresCategories')}}",
+            success: function (data){
+                $('#resultats').show();
+                $('#loadDispo').hide();
+                var reponse = eval('(' + data + ')');
+                // charge le template avec les donnees récupérese en json les options value et vide  #categorie
+                $('#categories').empty();
+                for(var i in reponse){
+                    $("#choixChbreTemplate").tmpl(reponse[i]).appendTo( '#categories' );
+                }
+                
+                
+                $(".nbCat").click(function(){
+                      calculTotal();
+                });
+
+                $(".nbCat").keyup(function(){
+                     calculTotal();
+                });
+            }
+        });
+
+}
+
+
+//-------------------COUPON-----------------------------------------------------
+//fonction de vérification de la validité du coupon et d'actualisation du total
+$('#ajoutCoupon').click(function(){
+    var coupon=$('#codepromo').val();
+    if (coupon==''){
+        alerte('Veuillez renseigner le coupon de réduction');
+        return false;
+    }
+    date=changeFormatDate(new Date());
+    $('#loadCoup').show();
+    $.ajax({
+        url:'{{path('ResanetSiteBundle_verifCouponFrontEnd')}}',
+        data:"codepromo="+coupon+"&date="+date,
+        success:function(data){
+            var reponse = eval('(' + data + ')');
+            $('#loadCoup').hide();
+            if (reponse.rep==1){
+                pourcentageCoupon=0;
+                montantCoupon=0;
+                if (typeof(reponse.pourcent)=="object"){
+                    montantCoupon=reponse.montant;
+                } else {
+                    pourcentageCoupon=reponse.pourcent;
+                    }
+                
+                calculTotal();
+             } else {
+                 // si le coupon n'est pas bon ou ne correspondant pas
+                 alerte(reponse.message);
+                 $('#codepromo').val('');
+             }
+        }
+    });
+
+});
+
+//-----------------------------CALCUL TOTAL
+// recalcule le total
+
+function calculTotal(){
+    var total=0;
+   //verification des valeurs des chambres et concordance avec disponibilite
+    $('.option').each(function(){
+        val=$(this).find('.nbOpt').val();
+       if (val<0){
+           alerte('Vous devez renseigner une valeur positive');
+           $(this).find('.nbOpt').val(0);
+           return false;
+        } else {
+            prix=$(this).data('prix');
+            total+=prix*val;
+         }
+      });
+    // tour des chambres
+    $('.chambre').each(function(){
+        val=$(this).find('.nbCat').val();
+        if (val<0){
+           alerte('Vous devez renseigner une valeur positive');
+           $(this).find('.nbCat').val(0);
+           return false;
+        } 
+        max=$(this).data('dispo');  
+        if (val>max){
+            alerte('Vous avez dépassé le nombre de chambres disponibles('+max+')');
+           $(this).find('.nbCat').val(0);
+           return false;
+        }
+        else {
+            prix=$(this).data('prix');
+            total+=prix*val;
+        }
+     });
+     // application de la reduction s'il y a 
+     total=total-((total*(pourcentageCoupon/100))+montantCoupon);
+     $('#total').val(total);
+}
+
+</script>
+
+{%endblock%}

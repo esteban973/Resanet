@@ -1,0 +1,22 @@
+{%extends 'ResanetBackendBundle:Admin:admin.html.twig'%}
+{% block general%}
+<div>
+        <label>Du </label><input id='dateDeb'name="date1" value="{{dateDebut | date("d/m/Y")}}"/>
+        <label>Au </label><input id='dateFin' name="date2" value="{{dateFin | date("d/m/Y")}}" />
+</div>
+<p>
+Libre {{taux}}
+</p>
+
+<div id="boutAct">
+        Actualiser
+</div>
+
+<script type="text/javascript">
+$("#dateDeb").datepicker();
+$("#dateFin").datepicker();
+var dateDeb= $('#dateDeb').val();
+var dateFin= $('#dateFin').val();
+$('#boutAct').button();
+</script>
+{% endblock%}

@@ -1,0 +1,234 @@
+
+{% import "ResanetMainBundle:Macro:verifForm.html.twig" as verif %}
+
+<div id="barreOutils">
+    {#peut permettre de rajouter des boutons ou d'en enlever#}
+    {% block outils%}
+    <a href="javascript:;" onclick="voirFormulaire(3)">Ajouter</a>
+    <a href="javascript:;" onclick="voirFormulaire(2)">Supprimer</a>
+    <a href="javascript:;" onclick="voirFormulaire(1)">Editer</a>
+    <a href="javascript:;" onclick="refreshTableau()">Rafraîchir</a>
+    {% endblock %}
+    
+</div>
+
+{#mise en forme du nom des colonnes#}
+<table id="dataTableau" >
+   <thead>
+        <tr>
+            {% for tab in parametresTab %}
+           <th>{{tab}}</th>
+           {%endfor%}
+        </tr>
+    </thead>
+</table>
+
+
+{#popup affichant les formulaires#}
+<div id="popup" >
+    <div id="reussite">L'enregistrement s'est effectué correctement</div>
+    <div id="alerte">Une erreur s'est produite lors de l'enregistrement</div>
+    <div id="formpopup"></div>
+</div>
+
+{% block divplus%}
+{% endblock divplus %}
+
+<script type="text/javascript">
+{#initialisation des variables#}
+
+var tab;  
+var idSelect;
+
+$('a','#barreOutils').button();
+$('#popup').hide();
+tableau();
+$(document).ready(function(){
+
+}); 
+
+//-----------------Tableau
+
+//affichage du tableau et chargement en Json
+function tableau(){
+    idEntite=undefined;
+    ligneSelect=undefined;
+    tab=$('#dataTableau').dataTable({
+     "bProcessing": true,
+     "bRetrieve":true,
+     "bJQueryUI": true,
+     "sAjaxSource": '{{path('Admin_liste'~nom~'Json')}}',
+     "aoColumns": [
+            {% for parametre in parametresJson %}
+            { "mDataProp": "{{parametre}}" {% if parametre|truncate(4)=='date' %},"sType":"uk_date"{%endif%}},
+             {%endfor%}
+        ]
+});
+    
+    $('#dataTableau').click( function(e) {
+    if( $(e.target).is('td') ) selectLigne.call(e.target,e); 
+    } );
+}
+
+var idEntite=undefined;
+var ligneSelect=undefined;
+
+function selectLigne(){
+    if (ligneSelect!=undefined){
+        ligneSelect.removeClass('row_selected');
+    }
+    
+    if (ligneSelect!=$(this).parent()) {
+        ligneSelect=$(this).parent();
+       
+        idEntite=ligneSelect.find('td:nth-child(1)').text();
+        $(this).parent().addClass('row_selected');
+       }
+  
+
+}
+// destruction du tableau et recréation du tableau
+ function refreshTableau(){
+     tab.fnDestroy();
+     tableau();
+ };
+ 
+ {% block formulairejavascript%}
+
+//--------------------Popup
+
+// fait apparaitre la popup et l'initialise
+
+var optionsPopUp= {
+                   modal:true,
+                   resizable:true,
+                   width:480,
+                   draggable:false
+};
+
+ function apparaitreFormulaire(titre, data){
+         $('#reussite').hide();
+         $('#alerte').hide();
+         $('#formpopup').html(data);
+         $('#popup').dialog(optionsPopUp);
+         $('#popup').dialog( "option", "title", titre );
+         $('#popup').show();
+}
+
+
+// ferme la popup
+function fermerPopup(){
+        $('#popup').dialog("close");
+};
+
+
+//-------------------Formulaire
+
+
+// requete ajax pour faire apparaitre soit un formulaire d'ajout, de suppression ou d'ajout
+function voirFormulaire(id){
+        var data;
+        if ((id==1)||(id==2)){
+            
+            if (idEntite ==undefined) {
+                alerte('Vous devez sélectionnez un élément');
+                 return false;
+                }
+            data='id='+idEntite;
+        }
+        
+        switch (id){
+            case 1:                 
+                path ="{{path('Admin_update'~nom)}}";
+                titre="Editer";
+                break;
+             case 2: 
+                path ="{{path('Admin_supprForm'~nom)}}";
+                titre="Supprimer";
+                break;
+              case 3:
+                path ="{{path('Admin_ajouter'~nom)}}";
+                titre="Ajouter";
+                break; 
+        }
+        $.ajax({
+            url: path,
+            cache: false,
+            data:data,
+            success: function(data){
+                apparaitreFormulaire(titre, data);
+            }
+        })
+}
+    
+//Fonction de verification du formulaire
+{% block scriptplus %}
+    {{ verif.verifForm(nom) }}
+{% endblock %}    
+
+// après verification du formualire, fais apparaitre les erreurs de remplissage du formulaire
+function montrerErreur(){
+    for (i=0;i<errors.length;i++){
+             if (typeof errors[i] != 'undefined'){
+             $('ul','#formErreurJava').append('<li>'+errors[i]+'</li>');
+             }
+             }
+            $('#alerte').show();
+            return false;
+}
+
+//----------------Enregistrement des requetes formulaires
+
+
+// requete ajax vers le serveur pour l'enregistrement de l'objet avec envoi de l'id s'il existe et de la serialisation du formulaire
+function editer(id){
+        $('ul','#formErreurJava').empty();
+        $('#erreurFormulaire').hide();
+        $('#alerte').hide();
+        // si test de validité passé, envoi en ajax 
+    if (verifForm{{nom}}()==true){
+        $('#erreurFormulaire').hide();
+        var DATA= (id == null) ? $('#formulaire').serialize():$('#formulaire').serialize()+'&id='+id ; 
+         $.ajax({
+                url: "{{path('Admin_enregistrer'~nom)}}",
+                cache: false,
+                data: DATA,
+                success: function(data){
+                    var reponse = eval('(' + data + ')');
+                    if (reponse.rep==1){
+                       $('#reussite').show();
+                       refreshTableau();
+                       } else {
+                        $('#formpopup').html(reponse.retour);
+                        $('#alerte').show();
+                       }
+                }
+            });
+            //sinon affichae des erreurs
+    } else montrerErreur();
+} 
+
+
+//function de requete ajax pour faire une suppression dans la base
+function supprimer(id){
+        $('#alerte').hide();
+       $.ajax({
+            url: "{{path('Admin_supprimer'~nom)}}",
+            cache: false,
+            data: 'id='+id,
+            success: function(data){
+                if (data==1){
+                   $('#reussite').show();
+                   $('#valider').button("option","disabled",true);
+                   $('#valider').attr('onclick','');
+                   refreshTableau();
+                   } else {
+                     $('#alerte').show();
+                   }
+            }
+        });
+    };
+ {%endblock%}
+ </script>       
+
+

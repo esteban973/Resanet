@@ -1,0 +1,18 @@
+{# empty Twig template #}
+<div><strong>{{message|default('Confirmez vous la suppression ?')}}</strong></div>
+<p>
+{{entity.enChaine}}
+<div id="bouton">
+<a id="valider" href="javascript:;" onclick="supprimer({{entity.id}})">Supprimer</a>
+<a id="annuler" href="javascript:;" onclick="fermerPopup()">Fermer</a>
+</div>
+<script>
+$('#valider').button();
+{%if message is defined %}
+    $('#valider').button("disable");
+    $('#valider').attr('onclick','');
+     $('#alerte').show();
+{%endif%}
+$('#annuler').button();
+</script>
+

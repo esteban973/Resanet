@@ -1,0 +1,1011 @@
+{% extends 'ResanetBackendBundle:Admin:admin.html.twig'%} 
+{%block menu%}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'Reservation'} %}
+{%endblock%}
+{# instancie les compteurs pour indicer les div et elements du dom créés dynamiquement#}
+{% set cpteurChbreTwig=0%}
+{% set cpteurOptionTwig = 0%}
+{% set cpteurPaiementTwig = 0%}
+{% set cpteurOccupantTwig = 0%}
+{% set tabPaiement=['Carte Bleue','Chèque','Espèces','Chèque ANCV','PayPal'] %}
+{% block title %}
+Réservation
+{% endblock %}
+{% block general %}
+
+
+
+<form name="formulaireReservation" id="formulaireReservation">
+   
+    <div class="clear"></div>
+    <div class="colResa30">
+        <strong>Réservation n°<span id="idResa">{%if resa is defined and resa.id is not null%} {{ resa.id}}{%endif%}</span><input type="hidden" name="id" id="id" {%if resa is defined %} value="{{ resa.id}}"{%endif%}></strong>
+            <div>
+            <p>Etat : <span id="etat">{%if resa is defined and resa.id is not null%} {{ resa.etat}}{% else %}Création {%endif%}</span> </p>
+            <p>Réalisée le {%if resa is defined and resa.id is not null%}{{resa.dateCreation | date('d/m/Y')}}{% else %}{{"now" | date('d/m/Y')}} {%endif%}</p>
+            </div>
+            <div>
+                <label>Fin d'option</label> 
+                <input id="dateOption" class="date" name="dateOption" value="{%if resa is defined %}{{resa.dateOption | date('d/m/Y')}}{%else%}{{dateOption | date('d/m/Y')}}{%endif%}"/>
+            </div>
+            
+    </div> 
+    <div class="colResa30">
+        <strong>Dates</strong>
+        <div>
+            <label>Arrivée</label> <input id="dateArrivee" class="date" name="dateArrivee" {%if resa is defined %} value="{{resa.dateArrivee | date('d/m/Y')}}"{%endif%}/><input id="heureArrivee" class="heure" name="heureArrivee" {%if resa is defined %} value="{{resa.heureArrivee | date('H:i')}}"{%endif%}/>
+        </div>
+        <div>
+            <label>Départ</label> <input id="dateDepart" class="date" name="dateDepart" {%if resa is defined %} value="{{resa.dateDepart | date('d/m/Y')}}"{%endif%}/>
+        </div>
+    </div>
+    <div class="colResa30">
+        <strong>Enregistrement</strong>
+        <div>
+            <label class="time">Check-in</label>
+            <input id="dateCheckIn" class="time" name="dateCheckIn" {%if resa is defined and resa.dateCheckIn is not null%} value="{{resa.dateCheckIn | date('d/m/Y H:i ') }}"{%endif%}/>
+        </div>
+        <div>
+            <label class="time">Check-out</label>
+            <input id="dateCheckOut" class="time" name="dateCheckOut" {%if resa is defined and resa.dateCheckOut is not null %} value="{{resa.dateCheckOut | date('d/m/Y H:i ')}}"{%endif%}/>
+
+        </div>
+        
+    </div>
+      <div class="clear"></div>
+        <div class="colResa30">
+            <strong>Chambres</strong>
+            <div id="ajoutChbre">Ajouter une chambre</div>
+            <div id="chbreListe">
+                
+                {%if resa is defined %}
+                    {% for chambre in chambres%}
+                        <div id="chbre{{cpteurChbreTwig}}">
+                            <select id="chbreSelect{{cpteurChbreTwig}}" name="chambre[{{cpteurChbreTwig}}]">
+                            {% for key, chambre in chambres%}
+                            <option data-prix="{{chambre.prix}}" data-chambre="{{chambre.chambre}}" value="{{chambre.id}}" {%if key==cpteurChbreTwig %}selected="selected"{%endif%} >Chambre {{chambre.chambre}} - {{chambre.categorie}} - {{chambre.prix}}€</option>
+                            {% endfor %}
+                            {% for chambre in chambresLibres%}
+                            <option data-prix="{{chambre.prix}}" data-chambre="{{chambre.chambre}}" value="{{chambre.id}} " >Chambre {{chambre.chambre}} - {{chambre.categorie}} - {{chambre.prix}}€</option>
+                            {% endfor %}
+                            </select>
+                            <span>Supprimer la chambre</span></div>
+                        
+                    {% set cpteurChbreTwig=cpteurChbreTwig+1 %}
+                    {% endfor %}
+                {% endif%}
+            </div>
+        </div>  
+            
+        <div class="colResa30">
+            <strong>Client</strong>
+            <div id="ajoutClient">Sélectionner un client</div>
+            <div id="clientInfo">
+                {%if resa is defined and resa.id is not null%}
+                <input type="hidden" name="clientId" id="clientId" value="{{resa.client.id}}" />
+                <p> Client : {{resa.client.nom}} {{resa.client.prenom}} {{resa.client.societe | default('')}}</p>
+                <p> Téléphone : {{resa.client.telephone | default('') }} {{resa.client.mobile | default('') }}</p>
+                <p> Email : {{resa.client.email | default('-') }}</p>
+                <p> Adresse : {{resa.client.adresse}}</br>
+                {{resa.client.ville}}, {{resa.client.pays}}</p>
+                {%endif%}
+            </div>
+        </div> 
+           
+        <div class="colResa30">
+            <strong>Options</strong><div id="ajoutOption">Ajouter une option</div>
+            <div id="optionListe">
+                {% if resa is defined %}
+                    {% for optionRes in resa.reservationOptionRes %}
+                          <div id="option{{cpteurOptionTwig}}">
+                              <select id="optionSelect{{cpteurOptionTwig}}" name="option[{{cpteurOptionTwig}}]">
+                                {% for option in options%}
+                                    <option data-prix="{{option.prix}}" value="{{option.id}}" {%if option.id==optionRes.optionRes.id%} selected="selected" {%endif%}> {{option.nom}} - {{option.prix}}€</option>
+                              {%endfor%}  
+                              </select>
+                              <input type="number" id="optionQuantite{{cpteurOptionTwig}}" name="optionQuantite[{{cpteurOptionTwig}}]" value="{{optionRes.quantite}}"/>
+                              <span>Supprimer l'option</span>
+                         </div>
+                    {% set cpteurOptionTwig = cpteurOptionTwig + 1%}
+                    {%endfor %}
+                {% endif%}
+            </div>
+        </div> 
+        
+    
+        <div class="clear"></div>
+        
+        <div class="colResa30">
+            <div><strong>Commentaires</strong></div>
+            <div>
+            <textarea id="commentaires" name="commentaires">{%if resa is defined %}{{resa.commentaires}}{% endif %}</textarea>
+            </div>     
+        </div>
+        
+        
+        <div class="colResa30" >
+            <strong>Paiement</strong>
+            <div id="ajoutPaiement">Ajouter un paiement</div>
+            <div id="paiementListe">
+                {%if resa is defined %}
+                    {% for paiement in resa.paiements %}
+                    <div id="paiement{{cpteurPaiementTwig}}">
+                        <select id="paiementSelect{{cpteurPaiementTwig}}" name="paiementType[{{cpteurPaiementTwig}}]">
+                            
+                             {% for typePaie in tabPaiement %}
+                                <option value="{{typePaie}}" {%if typePaie==paiement.moyen%} selected="selected"{%endif%}>{{typePaie}}</option>
+                             {% endfor%}
+                        </select>
+                            <input type="text" id="paiementMontant{{cpteurPaiementTwig}}" class="paiementMontant" name="paiementMontant[{{cpteurPaiementTwig}}]" value="{{paiement.montant}}"/>
+                            <input type="text" class="date" id="paiementDate{{cpteurPaiementTwig}}" name="paiementDate[{{cpteurPaiementTwig}}]" value="{{paiement.datePaiement | date('d/m/Y') }}"/>
+                            <span>Supprimer l\'option</span>
+                    </div>
+                    {% set cpteurPaiementTwig = cpteurPaiementTwig + 1%}
+                    {% endfor %}
+                {% endif%}
+            </div>
+        </div> 
+        
+        <div class="colResa30" id="montant">
+            <strong>Montant</strong>
+            <div><label>Total avt réduc.</label><input type="text" name="totalAvtReduc" id="totalAvtReduc" value="0" readonly="true"/></div>
+            <div id="couponReduc">
+                <label>Coupon</label><input type="text" name="coupon" id="coupon" {%if resa is defined and resa.coupon is not null%}value="{{resa.coupon.codePromo}}"{% endif%}/><span id="ajoutCoupon">Ajouter un coupon</span><span id="loadCoup">{{loading.loading()}}</span>
+            </div>
+            <div><label>Réduction Coupon</label><input type="text" name="reductionCoup" id="reductionCoup" value="0" readonly="true"/></div>
+            <div><label>Réduction Personnel</label><input type="text" name="reductionPers" id="reductionPers" value="{%if resa is defined %}{{resa.reduction |default('0')}}{% else %}0{%endif%}"/></div>
+            <div><label>Total</label><input type="text" name="totalApsReduc" id="totalApsReduc" value="0" readonly="true"/></div>
+            <div><label>Reste à payer</label><input type="text" name="reste" id="reste" value="0" readonly="true"/></div>
+        </div> 
+        
+        
+        <div class="clear"></div>
+        
+        <div class="colResa60">
+            <strong>Occupant</strong>
+            <div id="ajoutOccupant">Ajouter un occupant</div>
+            <div id="occupantListe">
+                {%if resa is defined %}
+                    {% for occupant in resa.occupants %}
+                    <div class="occupant" id="occupant{{cpteurOccupantTwig}}">
+                        <label>Nom</label>
+                        <input type="text" class="nomOccupant" id="occupantNom{{cpteurOccupantTwig}}" name="occupantNom[{{cpteurOccupantTwig}}]" value="{{occupant.personne.nom}}"/>
+                        <label>Prénom</label>
+                        <input type="text" class="prenomOccupant" id="occupantPrenom{{cpteurOccupantTwig}}" name="occupantPrenom[{{cpteurOccupantTwig}}]" value="{{occupant.personne.prenom}}"/>
+                        <label>Date de naissance</label>
+                        <input type="text" class="date" id="occupantDate{{cpteurOccupantTwig}}" name="occupantDate[{{cpteurOccupantTwig}}]" value="{{occupant.personne.dateNaissance | date('d/m/Y')}}"/>
+                        <select id="occupantChambreSelect{{cpteurOccupantTwig}}" name="occupantChambre[{{cpteurOccupantTwig}}]">
+                            {% for chambre in resa.chambres %}
+                                <option data-chambre="{{chambre.nom}}" value="{{chambre.id}}" {% if chambre==occupant.chambre%}selected="selected"{%endif%}>Chambre {{chambre.nom}} </option>
+                            {%endfor%}
+                        </select>
+                        <span>Supprimer l\'occupant</span>
+                    </div>
+                    {% set cpteurOccupantTwig = cpteurOccupantTwig + 1%}
+                    {% endfor %}
+                {% endif%}
+            </div> 
+        </div> 
+        
+         <div class="colResa30" id="btnReservation" >
+            <span id="modifierReservation">{%if resa is defined and resa.id is not null%}Modifier{% else %}Créer{%endif%}</span>
+            <span id="supprimerReservation">Annuler</span>
+            <button id="annulerReservation"> <a href="{{path('Admin_listeReservation')}}" >Fermer</a></button>
+        </div> 
+       
+        <div class="clear"></div>
+            
+            
+        
+</form> 
+
+<div id="client" title="Choix du client">
+    {% render "ResanetMainBundle:Client:listeClientTableau"%}
+</div>
+
+
+
+<div id="dialogEnvoi" title="Enregistrement">
+    <div id="chargement">{{loading.loading()}} Envoi en cours</div>
+    <div id="reussiteGlobal">L'enregistrement s'est effectué correctement</div>
+    <div id="alerteGlobal">Une erreur s'est produite lors de l'enregistrement</div>
+    <div id="erreurFormulaire"></div>
+</div>
+
+
+
+<div id="dialogSuppression" title="Annulation">
+    <div id="erreurFormulaireSupp"></div>
+    <div >
+        <form name="formAnnulation" id="formAnnulation" method="post" action="{{path('Admin_annulerReservation')}}">
+        <input type="hidden" name="idResaForm" id="idResaForm" {%if resa is defined %} value="{{ resa.id}}"{%endif%}>
+        <div><p>Date d'annulation</p><input type="text" name="dateAnnulation" id="dateAnnulation" /></div>
+        <div><p>Raison</p>
+            <p><select name="raison" id="raison">
+                <option value="No-Show">No-Show</option>
+                <option value="Météo">Météo</option>
+                <option value="Incapacité">Incapacité</option>
+                <option value="Prix">Prix</option>
+                <option value="Autre">Autre</option>
+            </select></p></div>
+        </form>
+    </div>
+</div>
+
+<!--------------------------------- TEMPLATES JQUERY pour mettre en forme les données passées en Json*-->
+
+<!-- template pour les options des select des chambres -->
+<script id="choixChbreTemplate" type="text/x-jquery-tmpl">
+<option data-prix="${prix}" data-chambre="${chambre}" value="${id}" >Chambre ${chambre} - ${categorie} - ${prix}€</option>
+</script>
+
+<!-- template pour les options des select des options -->
+<script id="choixOptionTemplate" type="text/x-jquery-tmpl">
+<option data-prix="${prix}" value="${id}" > ${nom} - ${prix}€</option>
+</script>
+
+<!-- template pour les options des select des chambres pour les occupants-->
+<script id="choixChbreOccupantTemplate" type="text/x-jquery-tmpl">
+<option data-chambre="${chambre}" value="${id}" >Chambre ${chambre}</option>
+</script>
+
+<!-- template pour les infos Clients -->
+<script id="clientTemplate" type="text/x-jquery-tmpl">
+<input type="hidden" name="clientId" id="clientId" value="${id}" />
+<p> Client : ${nom} ${societe}</p>
+<p> Téléphone : ${telephone} ${mobile}</p>
+<p> Email : ${email}</p>
+<p> Adresse : ${adresse}<br/>
+${ville}</p>
+</script>
+
+
+
+ <script>
+$(document).ready(function(){
+    
+    $('#dateCheckOut').datetimepicker();
+    $('#dateCheckIn').datetimepicker();
+    $('#dateOption').datepicker();
+    $('#heureArrivee').timepicker({});
+    $('#dateArrivee').datepicker();
+    $('#dateAnnulation').datepicker();
+    $('#dateDepart').datepicker();
+    $('#modifierReservation').button({ icons: {primary:'ui-icon-check'}});
+    $('#supprimerReservation').button({ icons: {primary:'ui-icon-circle-close'}});
+    {% if resa is not defined%}
+     $('#supprimerReservation').button("option", "disabled", true);
+    {%endif%}
+    {% if resa is defined and resa.id is null%}
+     $('#supprimerReservation').button("option", "disabled", true);
+    {%endif%}
+    $('#annulerReservation').button({ icons: {primary:'ui-icon-closethick'}});
+    $('#ajoutChbre').button({ icons: {primary:'ui-icon-plusthick'}, text:false});
+    $('#ajoutOption').button({ icons: {primary:'ui-icon-plusthick'}, text:false});
+    $('#ajoutOccupant').button({ icons: {primary:'ui-icon-plusthick'}, text:false});
+    $('#ajoutPaiement').button({ icons: {primary:'ui-icon-plusthick'}, text:false});
+    $('#ajoutClient').button({ icons: {primary:'ui-icon-person'}, text:false});
+    $('#client').hide();
+    $('#dialogEnvoi').hide();
+    $('#dialogSuppression').hide();
+    $('#loadCoup').hide();
+    $('#ajoutCoupon').button({ icons: {primary:'ui-icon-plusthick'}, text:false});
+    
+    {% if erreur is defined%}
+     $('#dialogEnvoi').dialog({
+                        modal:true,
+                        buttons :
+                          {"Fermer" : function (){
+                            $(this).dialog("close"); 
+                             }}});
+    
+    $('#reussiteGlobal').hide();
+    $('#chargement').hide();
+    $('#alerteGlobal').show();
+    {% for err in erreur %}
+        $('#erreurFormulaire').append('<p>{{err}}</p>')
+    {%endfor%}
+        
+{%endif%}
+    calculTotal();
+});
+
+//initialisation des variables
+//est incrémenté à chaque création d'un select de l'objet correspondant et permet d'indicer les div et select créés
+var cpteurOption={{cpteurOptionTwig}};
+var cpteurPaiement={{cpteurPaiementTwig}};
+var cpteurChbre={{cpteurChbreTwig}};
+var cpteurOccupant={{cpteurOccupantTwig}};
+// permet de connaitre le nombre de chambres sélectionnées et est vérifié avant validation du formulaire
+var compteur={{cpteurChbreTwig}};
+var clientId;
+//initialise les montants ou pourcentage des coupons de réduction
+var pourcentageCoupon={%if resa is defined and resa.coupon is not null%}{{resa.coupon.pourcentage | default('0')}}{%else%}0{% endif%};
+var montantCoupon={%if resa is defined and resa.coupon is not null%}{{resa.coupon.montant | default('0')}}{%else%}0{% endif%};
+
+
+// en modifiant les dates on efface toutes les données du formulaires
+$('#dateArrivee').change( function(){
+   dateArrivee=$('#dateArrivee').val();
+      dateOption=$('#dateOption').val();
+     if(compareDates(dateOption,dateArrivee)>0){
+        $('#dateOption').val(dateArrivee);
+    }
+   resetForm();   
+});
+$('#dateDepart').change( function(){
+   resetForm();
+});
+
+// fonction qui remet à jour les champs des chambres
+function resetForm(){
+    $('#chbreListe').empty(); 
+    calculTotal();
+    updateChambres();
+    compteur=0;
+}
+
+
+
+//--------------------------------OCCUPANTS --------------------------------------------------
+{#intégration dans le twig des select des paiements de la réservation en cours d'édition#}
+{%if resa is defined %}
+//ajouter des évenements sur les boutons et select de choix des paiements
+
+    {% for i in 0..(cpteurOccupantTwig-1) %}
+            $("#occupantDate{{i}}").datepicker();
+            $("#occupant{{i}} > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            $("#occupant{{i}} > span").click(function(){
+                    $(this).parent().remove();
+              });
+       
+    {% endfor %}
+{% endif%}
+
+//ajouter des boutons de sélections des Occupants 
+$('#ajoutOccupant').click( function(){
+            
+            if (compteur==0){
+                alerte('Vous n\'avez aucune chambre sélectionnée');
+                return false;
+            }
+            //crée dans le dom un objet select
+            $('#occupantListe').append('<div class="occupant" id="occupant'+cpteurOccupant+'"><label>Nom</label><input type="text" class="nomOccupant" id="occupantNom'+cpteurOccupant+'" name="occupantNom['+cpteurOccupant+']"/><label>Prénom</label><input type="text" class="prenomOccupant" id="occupantPrenom'+cpteurOccupant+'" name="occupantPrenom['+cpteurOccupant+']"/><label>Date de naissance</label><input type="text" class="date" id="occupantDate'+cpteurOccupant+'" name="occupantDate['+cpteurOccupant+']"/><select id="occupantChambreSelect'+cpteurOccupant+'" name="occupantChambre['+cpteurOccupant+']"></select><span>Supprimer l\'occupant</span></div>');
+            $("#occupantDate"+cpteurOccupant).datepicker();
+            $("#occupant"+cpteurOccupant+" > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            
+            $("#occupant"+cpteurOccupant+" > span").click(function(){
+                    $(this).parent().remove();
+              });
+            var chambres=new Array();  
+            var j=0;
+            $('#chbreListe > div >select').each( function(){
+             var chambre=$(this).find('option:selected').data('chambre');
+                var id=$(this).find('option:selected').val();
+                chambres[j]={ chambre : chambre, id : id}; 
+                j++;
+            });
+             for(var i in chambres){
+           $("#choixChbreOccupantTemplate").tmpl(chambres[i]).appendTo( '#occupantChambreSelect'+cpteurOccupant );
+            }
+            // incrémente le compteur de select
+            cpteurOccupant++;    
+    
+});
+
+//cette fonction remet à jour tous les champs select des occupants tenant compte des nouvelles chambres sélectionnées
+function updateChambres(){
+    var chambres=new Array();
+    var j=0;
+    $('#chbreListe > div >select').each( function(){
+        var chambre=$(this).find('option:selected').data('chambre');
+        var id=$(this).find('option:selected').val();
+        chambres[j]={ chambre : chambre, id : id}; 
+        j++;
+     });
+     
+   $('#occupantListe > div >select').each( function(){
+       $(this).empty();
+        for(var i in chambres){
+           $("#choixChbreOccupantTemplate").tmpl(chambres[i]).appendTo( this );
+        }
+   }); 
+}
+
+//--------------------------------PAIEMENTS --------------------------------------------------
+{#intégration dans le twig des select des paiements de la réservation en cours d'édition#}
+{%if resa is defined %}
+//ajouter des évenements sur les boutons et select de choix des paiements
+
+    {% for i in 0..(cpteurPaiementTwig-1) %}
+            $("#paiementDate{{i}}").datepicker();
+            $("#paiement{{i}} > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            // recalcule le montant total si le select est changé
+                $("#paiementSelect{{i}}").change(function(){
+                   calculTotal();
+                });
+
+                $("#paiementMontant{{i}}").keyup(function(){
+                   calculTotal();
+                });
+
+
+                // efface le select du dom si click sur supprimer et recalcule le montant
+                $("#paiement{{i}} > span").click(function(){
+                    $(this).parent().remove();
+                    calculTotal();
+                });
+    {% endfor %}
+{% endif%}
+
+//ajouter des boutons de sélections des Options 
+$('#ajoutPaiement').click( function(){
+            var auj="{{"now"|date('d/m/Y')}}";
+            //crée dans le dom un objet select
+            $('#paiementListe').append('<div id="paiement'+cpteurPaiement+'"><select id="paiementSelect'+cpteurPaiement+'" name="paiementType['+cpteurPaiement+']">{% for typePaie in tabPaiement %}<option value="{{typePaie}}">{{typePaie}}</option>{% endfor%}</select><input type="text" class="paiementMontant" id="paiementMontant'+cpteurPaiement+'" name="paiementMontant['+cpteurPaiement+']" value="0"/><input type="text" class="date" id="paiementDate'+cpteurPaiement+'" name="paiementDate['+cpteurPaiement+'] value=""/><span>Supprimer l\'option</span></div>');
+            $("#paiementDate"+cpteurPaiement).datepicker();
+            $("#paiementDate"+cpteurPaiement).val(auj);
+            $("#paiement"+cpteurPaiement+" > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            // recalcule le montant total si le select est changé
+            $("#paiementSelect"+cpteurPaiement).change(function(){
+               calculTotal();
+            });
+            
+            $("#paiementMontant"+cpteurPaiement).keyup(function(){
+               calculTotal();
+            });
+            
+            // efface le select du dom si click sur supprimer et recalcule le montant
+            $("#paiement"+cpteurPaiement+" > span").click(function(){
+                $(this).parent().remove();
+                calculTotal();
+            });
+            //recalcule le total
+            calculTotal();
+            // incrémente le compteur de select
+            cpteurPaiement++;    
+    
+});
+
+
+
+//--------------------------------CHAMBRE--------------------------------------------------
+{#intégration dans le twig des select des chambres de la réservation en cours d'édition#}
+{%if resa is defined %}
+//ajouter des évenements sur la sélection des boutons
+
+{% for i in 0..(cpteurChbreTwig-1) %}
+        $("#chbre{{i}} > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+// recalcule le montant total si le select est changé
+            $("#chbreSelect{{i}}").change(function(){
+               calculTotal();
+               updateChambres();
+            });
+            // efface le select du dom si click sur supprimer et recalcule le montant
+            $("#chbre{{i}} > span").click(function(){
+                $(this).parent().remove();
+                calculTotal();
+                updateChambres();
+                compteur--;
+            });
+{% endfor %}
+{% endif %}
+//ajouter des boutons de sélections des chambres en appel en ajax
+$('#ajoutChbre').click( function(){
+    //verification de la validité des dates
+    if (verificationDates()){
+        d1=changeFormat($('#dateArrivee').val());
+        d2=changeFormat($('#dateDepart').val());
+        $.ajax({
+        {% if resa is defined and resa.id is not null%}
+        data:"date1="+d1+"&date2="+d2+"&resaId={{resa.id}}", 
+        url: "{{path('Admin_listeChambreDispoJsonEdition')}}",
+          {%else%}
+        data:"date1="+d1+"&date2="+d2, 
+        url: "{{path('Admin_listeChambreDispoJson')}}",
+         {%endif%}
+        success: function (data){
+            var reponse = eval('(' + data + ')');
+            //crée dans le dom un objet select
+            $('#chbreListe').append('<div id="chbre'+cpteurChbre+'"><select id="chbreSelect'+cpteurChbre+'" name="chambre['+cpteurChbre+']"></select><span>Supprimer la chambre</span></div>');
+            $("#chbre"+cpteurChbre+" > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            
+            // charge le template avec les donnees récupérese en json les options value
+            for(var i in reponse){
+                $("#choixChbreTemplate").tmpl(reponse[i]).appendTo( '#chbreSelect'+cpteurChbre );
+            }
+            // recalcule le montant total si le select est changé
+            $("#chbreSelect"+cpteurChbre).change(function(){
+               calculTotal();
+               updateChambres();
+            });
+            // efface le select du dom si click sur supprimer et recalcule le montant
+            $("#chbre"+cpteurChbre+" > span").click(function(){
+                $(this).parent().remove();
+                calculTotal();
+                updateChambres();
+                compteur--;
+            });
+            //recalcule le total
+            calculTotal();
+            // incrémente le compteur de select
+            cpteurChbre++;
+            compteur++;
+            updateChambres();
+        }
+        });
+    }
+});
+
+//--------------------------------OPTIONS --------------------------------------------------
+{#intégration dans le twig des select des options de la réservation en cours d'édition#}
+{%if resa is defined %}
+//ajouter des évenements sur les boutons et select de choix des options
+
+{% for i in 0..(cpteurOptionTwig-1) %}
+        $("#option{{i}} > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+        // recalcule le montant total si le select est changé
+            $("#optionSelect{{i}}").change(function(){
+               calculTotal();
+            });
+            
+            $("#optionQuantite{{i}}").keyup(function(){
+               calculTotal();
+            });
+            
+            $("#optionQuantite{{i}}").click(function(){
+               calculTotal();
+            });
+            // efface le select du dom si click sur supprimer et recalcule le montant
+            $("#option{{i}} > span").click(function(){
+                $(this).parent().remove();
+                calculTotal();
+            });
+{% endfor %}
+{% endif%}
+
+//ajouter des boutons de sélections des Options  en appel en ajax
+$('#ajoutOption').click( function(){
+        $.ajax({
+                url: "{{path('Admin_listeOptionsJson')}}",
+                 success: function (data){
+            var reponse = eval('(' + data + ')');
+            //crée dans le dom un objet select
+            $('#optionListe').append('<div id="option'+cpteurOption+'"><select id="optionSelect'+cpteurOption+'" name="option['+cpteurOption+']"></select><input type="number" id="optionQuantite'+cpteurOption+'" name="optionQuantite['+cpteurOption+']"/><span>Supprimer l\'option</span></div>');
+            $("#option"+cpteurOption+" > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            
+            // charge le template avec les donnees récupérese en json les options value
+            for(var i in reponse){
+                $("#choixOptionTemplate").tmpl(reponse[i]).appendTo( '#optionSelect'+cpteurOption );
+            }
+            // recalcule le montant total si le select est changé
+                       
+            $("#optionQuantite"+cpteurOption).keyup(function(){
+               calculTotal();
+            });
+            
+            $("#optionQuantite"+cpteurOption).click(function(){
+               calculTotal();
+            });
+            
+            $("#optionSelect"+cpteurOption).change(function(){
+               calculTotal();
+            });
+            // efface le select du dom si click sur supprimer et recalcule le montant
+            $("#option"+cpteurOption+" > span").click(function(){
+                $(this).parent().remove();
+                calculTotal();
+            });
+            //recalcule le total
+            calculTotal();
+            // incrémente le compteur de select
+            cpteurOption++;
+            
+        }
+        });
+    
+});
+
+
+//--------------------------CLIENT-------------------------------------------------
+//fonction qui ouvre la boite de dialogue pour choisir le client.
+// reglages dialogue box et ajoute 2 boutons : 1 pour annuler et l'autre pour confirmer la sélection d'un client
+$('#ajoutClient').click( function(){
+   $('#client').dialog({
+                       draggable:false,
+                       minWidth:965,
+                       buttons :
+                           {"Sélectionner" : function (){
+                               if (idEntite ==null) {
+                                alerte('Vous devez sélectionnez un élément');
+                                return false;
+                                }
+                                afficheDonneesClient(idEntite);
+                                $(this).dialog("close"); 
+                                },
+                            "Fermer" : function (){
+                               $(this).dialog("close"); 
+                                }
+                           }
+                    });
+    
+});
+
+
+//function d'affichage du client
+function afficheDonneesClient(id){
+    $.ajax({
+        url:'{{path('Admin_getInfoClient')}}',
+        data:'id='+id,
+        success: function(data){
+            var reponse = eval('(' + data + ')');
+            $('#clientInfo').empty();
+             $("#clientTemplate").tmpl(reponse).appendTo( '#clientInfo' );
+            }
+        });
+}
+
+
+
+//-------------------COUPON-----------------------------------------------------
+//fonction de vérification de la validité du coupon et d'actualisation du total
+$('#ajoutCoupon').click(function(){
+    var coupon=$('#coupon').val();
+    if (coupon==''){
+        alerte('Veuillez renseigner le coupon de réduction');
+        return false;
+    }
+    date=changeFormatDate(new Date());
+    $('#loadCoup').show();
+    $.ajax({
+        url:'{{path('Admin_verifieCoupon')}}',
+        data:"codepromo="+coupon+"&date="+date,
+        success:function(data){
+            var reponse = eval('(' + data + ')');
+            $('#loadCoup').hide();
+            if (reponse.rep==1){
+                pourcentageCoupon=0;
+                montantCoupon=0;
+                if (typeof(reponse.pourcent)=="object"){
+                    montantCoupon=reponse.montant;
+                } else {
+                    pourcentageCoupon=reponse.pourcent;
+                    }
+                
+                calculTotal();
+             } else {
+                 // si le coupon n'est pas bon ou ne correspondant pas
+                 alerte(reponse.message);
+             }
+        }
+    });
+
+});
+
+//-------------------TOTAL---------------------------------------------------
+// 
+$('#reductionPers').keyup(function(){
+    calculTotal();
+});
+
+// focntion de calcul du total
+function calculTotal(){
+    //calcul du prix
+    var totalAvtReduc=0;
+    //calcul du prix des chambres
+    $('#chbreListe > div >select').each( function(){
+        var selected=$(this).find('option:selected');
+        totalAvtReduc=totalAvtReduc+parseFloat((selected.data('prix')),10); 
+    });
+    //calcul du prix des options
+    $('#optionListe > div').each( function(){
+        var select=$(this).find('select').find('option:selected');
+        var prixOpt=parseFloat((select.data('prix')),10);
+        var selectQuant=$(this).find('input').val();
+        prix=prixOpt*selectQuant; 
+        totalAvtReduc=totalAvtReduc+prix;
+    });
+    //application des réductions et affichage des prix avec réduction
+    $('#totalAvtReduc').val(roundNumber(totalAvtReduc,2));
+    var totalCoupon=(totalAvtReduc*(pourcentageCoupon/100))+montantCoupon;
+    $('#reductionCoup').val(roundNumber(totalCoupon,2));
+    var totalApsReduc=totalAvtReduc-$('#reductionPers').val()-totalCoupon;
+    $('#totalApsReduc').val(roundNumber(totalApsReduc,2));
+    //calcul du reste à payer
+    var paiement=0;
+    $('#paiementListe > div').each( function(){
+        paiement=paiement+parseFloat($(this).find('input').first().val(),10);
+    });
+    $('#reste').val(roundNumber(totalApsReduc-paiement,2));
+    
+}
+//--------------------------FUNCTION QUI ARRONDIT
+function roundNumber(num, dec) {
+	var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+	return result;
+}
+
+
+
+//--------------------------VERIFICATION DATES -----------------------------
+// fonction qui verfie si les dates de départ et d'arrivée sont remplies et sont conformes
+function verificationDates(){
+   if (!verifInputDate($('#dateArrivee'),'d\'arrivée')) return false;
+   if (!verifInputDate($('#dateDepart'),'de départ')) return false;
+   if (compareDates($('#dateArrivee').val(),$('#dateDepart').val())>=0 ){
+        alerte('La date de départ doit être supérieure à la date d\'arrivée');
+         return false
+    }
+    return true;
+}
+
+
+
+
+//---------------------------ENVOI DE LA REQUETE DE RESERVATION----------------------------
+
+$('#modifierReservation').click(function(){
+    creerReservation();
+});
+
+function verifForm(){
+    var regex = /^\d{2}\/\d{2}\/\d{4}$/;
+    //vérification des dates d'arrivée et de départ
+    if (!verificationDates()) return false;
+    //vérification du client
+    idClient=$('#clientId').val();
+    if (typeof(idClient)=='undefined'){ 
+        alerte('Vous n\'avez pas renseigné le client');
+        return false;
+    }
+    //vérification si sélection de chambres ou non
+    if (compteur==0){
+         alerte('Vous n\'avez pas sélectionné de chambres');
+        return false;
+    }
+    //vérification non saisie de 2 chambres pareils
+    var boolChambre=true;
+    var tabChambres=new Array();
+    $('#chbreListe>div>select').each(function(){
+        var idChbe=$(this).find('option:selected').val();
+        for (var i in tabChambres) {
+            if (parseInt(tabChambres[i],10)==parseInt(idChbe,10)) {
+                alerte('Vous ne pouvez pas sélectionner 2 fois la même chambre');
+                boolChambre=false;
+                return false;
+            }   
+        }
+        tabChambres.push(idChbe);
+     });
+    if(!boolChambre) return false;
+    
+    //vérification dates fin option inférieure ou égale à date d'arrivée
+    if (!verifInputDate($('#dateOption'),'d\'option')) return false;
+   
+    if (compareDates($('#dateOption').val(),$('#dateArrivee').val())>0 ){
+        alerte('La date d\'option est supérieure à la date d\'arrivée');
+         return false;
+    }
+    
+    
+    //vérification des options
+    //pas 2 mêmes options
+    //le nombre d'options est différents de 0 ou de ''
+    var boolOptions=true;
+    var tabOptions=new Array();
+    $('#optionListe>div').each(function(){
+        var idOption=$(this).find('select').find('option:selected').val();
+        for (var i in tabOptions) {
+            if (parseInt(tabOptions[i],10)==parseInt(idOption,10)) {
+                alerte('Vous ne pouvez pas sélectionner 2 fois la même option');
+                boolOptions=false;
+                return false;
+            }   
+        }
+        tabOptions.push(idOption);
+        var quant=$(this).find('input').val();
+        re=/\d/;
+        if ((quant=='')||(parseInt(quant,10)<=0)||(quant.match(re)==false)){
+           alerte('Une des options indique zéro ou aucune valeur');
+           boolOptions=false;
+           return false; 
+           
+        }
+       
+     });
+    if (!boolOptions) return false;
+    //vérification des occupants
+    var boolOccupant=true;
+     $('#occupantListe>div').each(function(){
+    //test du nom et du  prénom
+        if (($(this).find('.nomOccupant').val()=='')||($(this).find('.prenomOccupant').val()=='')){
+           alerte('Le nom et prénom des occupants doivent être renseignés');
+           boolOccupant=false;
+           return false;  
+        }
+        // test écriture date naissance
+         if (!verifInputDate($(this).find('.date'),'d\'option')){
+             boolOccupant=false;
+             return false;
+         }
+         //test de l'attribution d'une chambre
+         if ($(this).find('select').find('option:selected').val()==''){
+                boolOccupant=false;
+               alerte('Aucune chambre n\'a été attribué à un occupant');
+               return false;  
+            }
+    });
+    if (!boolOccupant) return false;
+    //test paiement
+    var boolPaiement=true;
+    $('#paiementListe>div').each(function(){
+    // test valeur du montant
+        if ($(this).find('.paiementMontant').val()==''){
+            boolPaiement=false;
+           alerte('Le montant de chacun des paiments doit être renseigné');
+           return false;  
+        }
+        
+        //test écriture date paiement
+         if (!verifInputDate($(this).find('.date'),'de paiement')){
+             boolPaiement=false;
+             return false;
+             }
+         //test de l'attribution d'un moyen d'un paiement
+         if ($(this).find('select').find('option:selected').val()==''){
+                 boolPaiement=false;
+               alerte('Aucun moyen de paiement n\'a été sélectionné');
+               return false;  
+         }
+    });
+    if (!boolPaiement) return false;
+      
+    var regexDateTemps = /^\d{2}\/\d{2}\/\d{4}\s([0-1][0-9])|([2][0-3]):[0-5][0-9]\s$/;
+    //test date de check in et date check out
+    if ($('#dateCheckIn').val()!=''){
+        if (!$('#dateCheckIn').val().match(regexDateTemps)){
+          alerte('La date de CheckIn n\'est pas au bon format est non correct jj/mm/aaaa hh:mm');
+          return false;
+        }
+        // date check in supérieure ou égale à date arrivée
+        if (compareDates($('#dateCheckIn').val(), $('#dateArrivee').val())<=0 ){
+            alerte('La date de check In doit être supérieure ou égale à la date d\'arrivée');
+             return false
+        } 
+        
+        if (compareDates($('#dateCheckIn').val(),$('#dateDepart').val())>=0 ){
+            alerte('La date de check In doit être inférieure ou égale à la date de départ');
+             return false
+        }   
+       
+       if ($('#dateCheckOut').val()!=''){
+            if (!$('#dateCheckOut').val().match(regexDateTemps)){
+              alerte('La date de CheckOut n\'est pas au bon format est non correct jj/mm/aaaa hh:mm');
+              return false;
+            }
+          //format valide, date check in différente inférieure ou égale à dtae check out
+            if (compareDates($('#dateCheckIn').val(),$('#dateCheckOut').val())>=0 ){
+                alerte('La date de check In doit être inférieure à la date de checkOut');
+                 return false
+            }   
+            
+            //format valide, date check in différente inférieure ou égale à dtae check out
+            if (compareDates($('#dateCheckOut').val().substr(0,10),$('#dateDepart').val())>0 ){
+                alerte('La date de check Out doit être inférieure à la date de départ');
+                 return false
+            }   
+        }
+    } else {
+        if ($('#dateCheckOut').val()!=''){
+            alerte('La date de CheckOut est renseigné mais pas la date de Check in');
+            return false;
+        }
+    }
+    return true;
+}
+
+
+function creerReservation(){
+   if (!verifForm()) {
+        return false;
+        } else {
+            //ajouter submit et peut être vérification de la capacité
+            $('#dialogEnvoi').dialog({
+                                    modal:true,
+                                    buttons :
+                                   {"Fermer" : function (){
+                                       $(this).dialog("close"); 
+                                        }}});
+            $('#chargement').show();
+            $('#alerteGlobal').hide();
+            $('#reussiteGlobal').hide();
+            $('#erreurFormulaire').empty();
+            $.ajax({
+                url:"{{path("Admin_enregistrerReservationExistante")}}",
+                data:$('#formulaireReservation').serialize(),
+                success:function(data){
+                    var reponse = eval('(' + data + ')');
+                    $('#chargement').hide();
+                    if (reponse.rep==1){
+                         $('#reussiteGlobal').show();
+                         $('#modifierReservation').button( "option", "label", "Modifier" );
+                         $('#supprimerReservation').button( "option", "disabled", false );
+                         actualiserDonneesResa(reponse.id, reponse.etat)
+                    } 
+                    if (reponse.rep==0){
+                        $('#alerteGlobal').show();
+                        for (var i in reponse.erreur){
+                            $('#erreurFormulaire').append('<p>'+reponse.erreur[i]+'</p>')
+                            }
+                    }
+                        
+                    }
+
+                
+            });
+    }
+}
+
+
+// function qui actualisent les donnees de la résa
+function actualiserDonneesResa(id, etat){
+    $('#idResa').html(id);
+    $('#id').val(id);
+    $('#idResaForm').val(id);
+    $('#etat').html(etat);
+}
+
+
+//---------------------------ENVOI DE LA REQUETE DE SUPPRESSION DE RESERVATION----------------------------
+
+$('#supprimerReservation').click(function(){
+    $('#erreurFormulaireSupp').empty();
+    $('#dialogSuppression').dialog({
+                                    modal:true,
+                                    draggable:false,
+                                    buttons :
+                                   {"Enregistrer" : function (){
+                                      
+                                       annulerReservation(); 
+                                        },
+                                    "Fermer" : function (){
+                                       $(this).dialog("close"); 
+                                        }
+                               }});
+   
+});
+
+function annulerReservation(){
+
+   var regex = /^\d{2}\/\d{2}\/\d{4}$/;
+   erreur=new Array();
+   if ($('#dateAnnulation').val()==''){
+            erreur.push('Vous devez choisir une date d\'annulation')
+    }
+    
+    if (!($('#dateAnnulation').val().match(regex))){
+          erreur.push('Le format de date d\'annulation est non correct jj/mm/aaaa');
+    }
+    
+    if ($('#raison').val()==''){
+          erreur.push('Vous devez renseigner la raison');
+    }
+    
+    if (erreur.length>0){
+        for (var i in erreur){
+                    $('#erreurFormulaireSupp').append('<p>'+erreur[i]+'</p>')
+                }
+        
+        return false;
+    } else {
+        $('#formAnnulation').submit();
+    }
+}
+
+</script>
+{% endblock %}
+
+
+
+
+

@@ -1,0 +1,13 @@
+login:
+    pattern:   /connexion
+    defaults:  { _controller: ResanetUtilisateurBundle:Utilisateur:login }
+    
+login_check:
+    pattern:   /verification
+    
+deconnexion:
+    pattern:   /deconnexion
+    
+ResanetUtilisateurBundle_utilisateur:
+    resource: "@ResanetUtilisateurBundle/Resources/config/utilisateur.yml"
+    prefix:   /parametres/utilisateur/

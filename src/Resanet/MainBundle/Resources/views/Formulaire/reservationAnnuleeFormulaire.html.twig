@@ -1,0 +1,306 @@
+
+{% extends 'ResanetBackendBundle:Admin:admin.html.twig'%} 
+{# instancie les compteurs pour indicer les div et elements du dom créés dynamiquement#}
+{% set cpteurPaiementTwig = 0%}
+{% set tabPaiement=['Carte Bleue','Chèque','Espèces','Chèque ANCV','PayPal'] %}
+{% block title %}
+Réservation Annulée
+{% endblock %}
+{%block menu%}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'Reservation'} %}
+{%endblock%}
+{% block general %}
+
+
+
+<form name="formulaireReservation" id="formulaireReservation">
+   
+    <div class="clear"></div>
+    <div class="colResa30">
+        <strong>Réservation n°<span id="idResa">{{ resa.id}}</span><input type="hidden" name="id" id="id" {%if resa is defined %} value="{{ resa.id}}"{%endif%}></strong>
+            <div>
+            <p>Etat : <span id="etat">{{ resa.etat}}</span> le {{resa.annulation.date| date('d/m/Y')}}</p>
+            <p>Raison de l'annulation : {{resa.annulation.raison}}</p>
+            <p>Réalisée le {{resa.dateCreation | date('d/m/Y')}}</p>
+            </div>
+            <div>
+                <label>Fin d'option</label><span>{{resa.dateOption | date('d/m/Y')}}</span>
+            </div>
+            
+    </div> 
+    <div class="colResa30">
+        <strong>Dates</strong>
+        <div>
+            <label>Arrivée</label> <span>{{resa.dateArrivee | date('d/m/Y')}}</span>
+        </div>
+        <div>
+            <label>Départ</label> <span>{{resa.dateDepart | date('d/m/Y')}}</span>
+        </div>
+    </div>
+    
+      
+        <div class="colResa30">
+            <strong>Chambres</strong>
+            <div id="chbreListe">
+                {% for chambre in chambres%}
+                        <div class="chbre">
+                            <p>Chambre {{chambre.chambre}} - {{chambre.categorie}} - {{chambre.prix}}€</p>
+                        </div>
+                 {% endfor %}
+            </div>
+        </div>  
+            
+        <div class="clear"></div>
+        
+        <div class="colResa30">
+            <strong>Client</strong>
+            <div id="clientInfo">
+                <p> Client : {{resa.client.nom}} {{resa.client.prenom}} {{resa.client.societe | default('')}}</p>
+                <p> Téléphone : {{resa.client.telephone | default('') }} {{resa.client.mobile | default('') }}</p>
+                <p> Email : {{resa.client.email | default('-') }}</p>
+                <p> Adresse : {{resa.client.adresse}}</br>
+                {{resa.client.ville}}, {{resa.client.pays}}</p>
+                
+            </div>
+        </div> 
+           
+        
+             
+        
+        <div class="colResa30" >
+            <strong>Paiement</strong>
+            <div id="ajoutPaiement">Ajouter un paiement</div>
+            <div id="paiementListe">
+                  {% for paiement in resa.paiements %}
+                    <div id="paiement{{cpteurPaiementTwig}}">
+                        <select id="paiementSelect{{cpteurPaiementTwig}}" name="paiementType[{{cpteurPaiementTwig}}]">
+                            
+                             {% for typePaie in tabPaiement %}
+                                <option value="{{typePaie}}" {%if typePaie==paiement.moyen%} selected="selected"{%endif%}>{{typePaie}}</option>
+                             {% endfor%}
+                        </select>
+                            <input type="text" id="paiementMontant{{cpteurPaiementTwig}}" class="paiementMontant" name="paiementMontant[{{cpteurPaiementTwig}}]" value="{{paiement.montant}}"/>
+                            <input type="text" class="date" id="paiementDate{{cpteurPaiementTwig}}" name="paiementDate[{{cpteurPaiementTwig}}]" value="{{paiement.datePaiement | date('d/m/Y') }}"/>
+                            <span>Supprimer l\'option</span>
+                    </div>
+                    {% set cpteurPaiementTwig = cpteurPaiementTwig + 1%}
+                    {% endfor %}
+                
+            </div>
+        </div> 
+        
+               
+        <div class="colResa30" id="montant">
+            <strong>Montant</strong>
+            <div><label>Total des chambres</label><input type="text"  value="{{resa.getTotalChambres}}" readonly="true"/></div>
+            <div><label>Total des réductions</label><input type="text"  value="{{resa.getTotalReductions}}" readonly="true"/></div>
+            <div><label>Total</label><input type="text" name="totalApsReduc" id="totalApsReduc" value="0" readonly="true"/></div>
+            <div><label>Reste à payer</label><input type="text" name="reste" id="reste" value="0" readonly="true"/></div>
+        </div> 
+        
+        
+        <div class="clear"></div>
+        
+         <div class="colResa100" id="btnReservation" >
+           <span id="modifierReservation">Modifier</span>
+           <button id="annulerReservation"> <a href="{{path('Admin_listeReservation')}}" >Fermer</a></button>
+        </div> 
+       
+        <div class="clear"></div>
+
+</form> 
+
+<div id="dialogEnvoi" title="Envoi en cours">
+    <div id="chargement">{{loading.loading()}} Envoi en cours</div>
+    <div id="reussiteGlobal">L'enregistrement s'est effectué correctement</div>
+    <div id="alerteGlobal">Une erreur s'est produite lors de l'enregistrement</div>
+    <div id="erreurFormulaire"></div>
+</div>
+
+
+ <script>
+$(document).ready(function(){
+    $('#modifierReservation').button({ icons: {primary:'ui-icon-check'}});
+    $('#annulerReservation').button({ icons: {primary:'ui-icon-closethick'}});
+    $('#ajoutPaiement').button({ icons: {primary:'ui-icon-plusthick'}, text:false});
+    $('#dialogEnvoi').hide();
+    calculTotal();
+});
+
+//initialisation des variables
+//est incrémenté à chaque création d'un select de l'objet correspondant et permet d'indicer les div et select créés
+var cpteurPaiement={{cpteurPaiementTwig}};
+
+
+//--------------------------------PAIEMENTS --------------------------------------------------
+{#intégration dans le twig des select des paiements de la réservation en cours d'édition#}
+
+//ajouter des évenements sur les boutons et select de choix des paiements
+
+    {% for i in 0..(cpteurPaiementTwig-1) %}
+            $("#paiementDate{{i}}").datepicker();
+            $("#paiement{{i}} > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            // recalcule le montant total si le select est changé
+                $("#paiementSelect{{i}}").change(function(){
+                   calculTotal();
+                });
+
+                $("#paiementMontant{{i}}").keyup(function(){
+                   calculTotal();
+                });
+
+
+                // efface le select du dom si click sur supprimer et recalcule le montant
+                $("#paiement{{i}} > span").click(function(){
+                    $(this).parent().remove();
+                    calculTotal();
+                });
+{% endfor %}
+
+
+//ajouter des boutons de sélections des Options 
+$('#ajoutPaiement').click( function(){
+            //crée dans le dom un objet select
+            $('#paiementListe').append('<div id="paiement'+cpteurPaiement+'"><select id="paiementSelect'+cpteurPaiement+'" name="paiementType['+cpteurPaiement+']">{% for typePaie in tabPaiement %}<option value="{{typePaie}}">{{typePaie}}</option>{% endfor%}</select><input type="text" class="paiementMontant" id="paiementMontant'+cpteurPaiement+'" name="paiementMontant['+cpteurPaiement+']" value="0"/><input type="text" class="date" id="paiementDate'+cpteurPaiement+'" name="paiementDate['+cpteurPaiement+']"/><span>Supprimer l\'option</span></div>');
+            $("#paiementDate"+cpteurPaiement).datepicker();
+            $("#paiementDate"+cpteurPaiement).val("{{"now"|date('d/m/Y')}}");
+            $("#paiement"+cpteurPaiement+" > span").button({ icons: {primary:'ui-icon-closethick'}, text:false});
+            // recalcule le montant total si le select est changé
+            $("#paiementSelect"+cpteurPaiement).change(function(){
+               calculTotal();
+            });
+            
+            $("#paiementMontant"+cpteurPaiement).keyup(function(){
+               calculTotal();
+            });
+            
+            // efface le select du dom si click sur supprimer et recalcule le montant
+            $("#paiement"+cpteurPaiement+" > span").click(function(){
+                $(this).parent().remove();
+                calculTotal();
+            });
+            //recalcule le total
+            calculTotal();
+            // incrémente le compteur de select
+            cpteurPaiement++;    
+});
+
+
+
+
+//-------------------TOTAL---------------------------------------------------
+// 
+$('#reductionPers').keyup(function(){
+    calculTotal();
+});
+
+// focntion de calcul du total
+function calculTotal(){
+    var totalApsReduc={{resa.annulation.getMontant}};
+    $('#totalApsReduc').val(totalApsReduc);
+    //calcul du reste à payer
+    var paiement=0;
+    $('#paiementListe > div').each( function(){
+        paiement=paiement+parseFloat($(this).find('input').first().val(),10);
+        console.log(paiement);
+    });
+    reste=Math.round((totalApsReduc-paiement)*Math.pow(10,2))/Math.pow(10,2);
+    $('#reste').val(reste);
+    
+}
+
+//---------------------------ENVOI DE LA REQUETE DE RESERVATION----------------------------
+
+$('#modifierReservation').click(function(){
+    creerReservation();
+});
+
+function verifForm(){
+    
+    //test paiement
+    var boolPaiement=true;
+    $('#paiementListe>div').each(function(){
+    // test valeur du montant
+        if ($(this).find('.paiementMontant').val()==''){
+            boolPaiement=false;
+           alerte('Le montant de chacun des paiments doit être renseigné');
+           return false;  
+        }
+        
+        //test écriture date paiement
+         if (!verifInputDate($(this).find('.date'),'de paiement')){
+             boolPaiement=false;
+             return false;
+             }
+         //test de l'attribution d'un moyen d'un paiement
+         if ($(this).find('select').find('option:selected').val()==''){
+                 boolPaiement=false;
+               alerte('Aucun moyen de paiement n\'a été sélectionné');
+               return false;  
+         }
+    });
+    if (!boolPaiement) return false;
+      
+    return true;
+}
+
+
+function creerReservation(){
+   if (!verifForm()) {
+        return false;
+        } else {
+            //ajouter submit et peut être vérification de la capacité
+            $('#dialogEnvoi').dialog({
+                                    modal:true,
+                                    buttons :
+                                   {"Fermer" : function (){
+                                       $(this).dialog("close"); 
+                                        }}});
+            $('#chargement').show();
+            $('#alerteGlobal').hide();
+            $('#reussiteGlobal').hide();
+            $('#erreurFormulaire').empty();
+            $.ajax({
+                url:"{{path("Admin_enregistrerReservationAnnulee")}}",
+                data:$('#formulaireReservation').serialize(),
+                success:function(data){
+                    var reponse = eval('(' + data + ')');
+                    $('#chargement').hide();
+                    if (reponse.rep==1){
+                         $('#reussiteGlobal').show();
+                         actualiserDonneesResa(reponse.id, reponse.etat)
+                    } 
+                    if (reponse.rep==0){
+                        $('#alerteGlobal').show();
+                        montrerErreur(reponse.erreur);
+                    }
+
+                }
+            });
+    }
+}
+
+
+
+// function qui montrent les erreurs du formulaire
+function montrerErreur(err){
+  for (var i in err){
+                    $('#erreurFormulaire').append('<p>'+err[i]+'</p>')
+                }
+}
+
+// function qui actualisent les donnees de la résa
+function actualiserDonneesResa(id, etat){
+    $('#creerReservation').hide();
+    $('#modifierReservation').show();
+    $('#idResa').html(id);
+    $('#id').val(id);
+    $('#etat').html(etat);
+}
+
+
+</script>
+{% endblock %}
+
+
+

@@ -1,0 +1,32 @@
+Admin_listeCategorie:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Categorie:listeCategorie }
+
+Admin_listeCategorieJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Categorie:listeCategorieJson }
+
+
+Admin_enregistrerCategorie:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Categorie:enregistrerCategorie }
+
+Admin_supprimerCategorie:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Categorie:supprimerCategorie }
+    
+Admin_supprFormCategorie:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Categorie:supprimerFormCategorie }
+    
+Admin_ajouterCategorie:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Categorie:ajouterCategorie }
+    
+Admin_updateCategorie:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Categorie:updateCategorie }
+
+Admin_categorieImage:
+    pattern:  /image
+    defaults: { _controller: ResanetMainBundle:Categorie:imageCategorie }

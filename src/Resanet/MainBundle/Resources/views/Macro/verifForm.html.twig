@@ -1,0 +1,134 @@
+{# empty Twig template #}
+<script>
+{% macro verifForm(nom)%}
+
+var errors;
+var regex = /^\d{2}\/\d{2}\/\d{4}$/;
+var chiffre = /^\d{2}\/\d{2}\/\d{4}$/;
+
+
+{% if nom=='Chambre' %}
+function verifFormChambre(){
+        errors= new Array();
+       if ($('#chambre_nom').val()=='') {errors[0]='La chambre doit être renseigné ';}
+       if ($('#chambre_categorie').val()=='') {errors[1]='La catégorie doit être renseignée ';}
+       return (errors.length>0) ? false : true;
+ }
+{% endif%}
+
+{% if nom=='Coupon' %}
+ function verifFormCoupon(){
+        errors= new Array();
+        if ($('#coupon_codepromo').val()=='') {errors[0]='Le code promo doit être renseigné ';}
+        if ($('#coupon_nbDebut').val()=='') {errors[1]='Le nombre initial doit être renseigné ';}
+        if (($('#coupon_montant').val()!='')&&($('#coupon_pourcentage').val()!='')) 
+        {errors[2]='Seul le pourcentage ou le montant doit être renseigné ';}
+        if ((!($('#coupon_dateDebut').val().match(regex)))||(!($('#coupon_dateFin').val().match(regex)))){
+          errors[3]='Format de date non corrects jj/mm/aaaa ';}
+        if (($('#coupon_montant').val()=='')&&($('#coupon_pourcentage').val()=='')) 
+        {errors[4]='Au moins le pourcentage ou le coupon doit être renseigné ';}
+         if (compareDates($('#coupon_dateDebut').val(),$('#coupon_dateFin').val())>=0){
+         errors[5]='La date de fin est supérieure à la date de début ';}
+        return (errors.length>0) ? false : true;
+}
+{% endif%}
+
+{% if nom=='OptionRes' %}
+function verifFormOptionRes(){
+       errors= new Array();
+       if ($('#optionRes_nom').val()=='') {errors[0]='Le nom doit être renseigné ';}
+       if ($('#optionRes_prix').val()=='') {errors[1]='Le prix doit être renseigné.';}
+       return (errors.length>0) ? false : true;
+}
+{% endif%}
+
+{% if nom=='Reduction' %}
+function verifFormReduction(){
+        errors= new Array();
+      if ($('#reduction_libelle').val()=='') {errors[0]='Le nom doit être renseigné ';}
+       if ($('#reduction_pourcent').val()=='') {errors[1]='Le pourcentage doit être renseigné.';}
+       if (($('#reduction_pourcent').val()>100)&& ($('#reduction_pourcentage').val()<0)){errors[2]='Le pourcentage doit être compris entre 0 et 100.';}
+       if (!($('#reduction_dateDebEff').val().match(regex))){errors[3]='Format de date de début de validité non corrects jj/mm/aaaa ';}
+       if (!($('#reduction_dateFinEff').val().match(regex))){errors[4]='Format de date de fin de validité non corrects jj/mm/aaaa ';} 
+       if (!($('#reduction_dateDebPeriod').val().match(regex))){errors[5]='Format de date de début de période non corrects jj/mm/aaaa ';}
+       if (!($('#reduction_dateFinPeriod').val().match(regex))){errors[6]='Format de date de fin de période non corrects jj/mm/aaaa ';} 
+       if (compareDates($('#reduction_dateDebEff').val(),$('#reduction_dateFinEff').val())>=0)
+        {errors[7]='La date de validité est supérieure à la date de fin de validité ';} 
+       if (compareDates($('#reduction_dateDebPeriod').val(),$('#reduction_dateFinPeriod').val())>=0)
+        {errors[8]='La date de début de période est supérieure à la date de fin de la période ';}  
+       if (compareDates($('#reduction_dateFinEff').val(),$('#reduction_dateFinPeriod').val())>=0)
+        {errors[9]='La date de validité est supérieure à la date de fin de la période ';}       
+      
+      return (errors.length>0) ? false : true;
+}
+{% endif%}
+
+{% if nom=='Categorie' %}
+function verifFormCategorie(){
+    errors= new Array();
+    if ($('#categorie_nom').val()=='') {errors[0]='Le nom doit être renseigné.';}
+    if (($('#categorie_nbLit1').val()==0)&&($('#categorie_nbLit2').val()==0)){errors[4]='Une chambre sans lits....';}
+    if ($('#categorie_nbLit2').val()>4) {errors[1]='Le nombre de lits 1p maximal est atteint.';}
+    if ($('#categorie_nbLit2').val()>4) {errors[2]='Le nombre de lits 2p maximal est atteint.';}
+    if ($('#categorie_description').val()=='') {errors[3]='Vous devez renseigner une description.';}
+    return (errors.length>0) ? false : true;
+}
+{% endif%}
+
+{% if nom=='Periode' %}
+function verifFormPeriode(){
+    errors= new Array();
+    if ((!($('#dateDebut').val().match(regex)))||(!($('#dateFin').val().match(regex)))){
+          errors[0]='Format de date non corrects jj/mm/aaaa ';}
+    if (compareDates($('#dateDebut').val(),$('#dateFin').val())>0 ){
+         errors[5]='La date de fin est supérieure à la date de début';}
+     return (errors.length>0) ? false : true;
+}
+{% endif%}
+
+
+{% if nom=='Indispo' %}
+function verifFormIndispo(){
+    errors= new Array();
+    if ((!($('#indispo_dateDebut').val().match(regex)))||(!($('#indispo_dateFin').val().match(regex)))){
+          errors[0]='Format de date non corrects jj/mm/aaaa ';}
+    if (compareDates($('#indispo_dateDebut').val(),$('#indispo_dateFin').val())>0 ){
+         errors[5]='La date de début est supérieure à la date de fin Javascript';}
+     return (errors.length>0) ? false : true;
+}
+
+
+{% endif%}
+    
+{% if nom=='Utilisateur' %}
+function verifFormUtilisateur(){
+    errors= new Array();
+    if ($('#utilisateur_prenomUtilisateur').val()==''){errors[0]='Le prénom doit être renseigné';}
+    if ($('#utilisateur_nomUtilisateur').val()==''){errors[1]='Le nom doit être renseigné';}
+    if ($('#utilisateur_fonctionUtilisateur').val()==''){errors[2]='La fonction doit être renseignée';}
+    if ($('#utilisateur_identifiantUtilisateur').val()==''){errors[3]='L\'identifiant doit être renseigné';}
+    if ($('#utilisateur_passwordUtilisateur').val()==''){errors[4]='Le mot de passe doit être renseigné';}
+    return (errors.length>0) ? false : true;
+}
+{% endif%}
+
+{% if nom=='Client' %}
+function verifFormClient(){
+    errors= new Array();
+    if ($('#client_prenom').val()==''){errors[0]='Le prénom doit être renseigné';}
+    if ($('#client_nom').val()==''){errors[1]='Le nom doit être renseigné';}
+    if ($('#client_adresse').val()==''){errors[2]='L\'adresse doit être renseignée';}
+    if ($('#client_ville').val()==''){errors[3]='La ville doit être renseignée';}
+    if ($('#client_cp').val()==''){errors[4]='Le code postal doit être renseignée';}
+    if ($('#client_pays').val()==''){errors[5]='Le pays doit être renseignée';}
+    if (($('#client_telephone').val()=='')&&($('#client_email').val()=='')){errors[6]='Aucun information de contact';}
+    return (errors.length>0) ? false : true;
+}
+
+{% endif%}
+
+
+
+{% endmacro%}
+
+<script>

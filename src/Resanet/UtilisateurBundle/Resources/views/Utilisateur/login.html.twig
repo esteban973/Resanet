@@ -1,0 +1,44 @@
+{# src/Acme/SecurityBundle/Resources/views/Security/login.html.twig #}
+{% extends 'ResanetBackendBundle:Admin:admin.html.twig'%}
+
+{% block title %}
+Login
+{% endblock %}
+
+
+
+{% block general %}
+
+{% if error %}
+    <div>{{ error.message }}</div>
+{% endif %}
+
+<form id="formulaireLogin" action="{{ path('login_check') }}" method="post">
+    <div id="formCheck">
+        <div><h2>Backend Resanet</h2></div>
+        <div>
+        <label for="username">Identifiant :</label>
+        <input type="text" id="username" name="_username" value="{{ last_username }}" />
+        </div>
+        <div>    
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="_password" />
+        </div>
+        <input type="hidden" name="_target_path" value="/admin" />
+            <div id="boutonLogin">
+            Valider
+            </div>
+        
+    </div>
+</form>
+    <script>
+        $('#boutonLogin').button();
+        $('#boutonLogin').click(function(){
+            if (($('#username').val()=='')||($('#password').val()=='')){
+                alerte('Veuillez saisir l\'identifiant et votre mot de passe');
+                return false}
+            $('#formulaireLogin').submit();
+        })
+        </script>
+        
+{% endblock %}

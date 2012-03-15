@@ -1,0 +1,55 @@
+{% extends 'ResanetMainBundle:Admin:affichageTableau.html.twig'%}
+
+{% block outils %}
+{{parent()}}
+<a href="javascript:;" onclick="choisirImage()">Ajouter une image</a>
+{% endblock %}
+
+{%block divplus%}
+<div id="choixImage" title="Choisissez une image">
+{% render 'ResanetImageBundle:Default:uploader'%}
+</div>
+ 
+{% endblock%}
+
+{% block scriptplus %}
+    {{ parent() }}
+    $('#choixImage').hide();
+    function choisirImage(){
+     if (idEntite ==undefined) {
+                alerte('Vous devez sélectionnez un élément');
+                 return false;
+                } 
+        $('#choixImage').dialog({
+            width:600,
+            height:500,
+            buttons :[
+            {text : 'Fermer',
+            click : function(){$(this).dialog("close");}},
+            {text : 'Sélectionner',
+            click : function(){
+               if (imageSelect== undefined) {
+                alerte('Vous devez sélectionner une image');
+                return false
+                } else {
+                    selectionnerPhoto();
+                }
+            }}
+            ]
+        
+            });
+    }
+    
+    function selectionnerPhoto(){
+        var id=idEntite;
+         var img=imageSelect.attr('image');
+         $.ajax({
+            url: "{{path('Admin_categorieImage')}}",
+            data: 'id='+id+'&img='+img,
+            success: function (data){
+                $('#choixImage').dialog("close");
+                refreshTableau();
+            }
+        });
+    }
+{% endblock %}    

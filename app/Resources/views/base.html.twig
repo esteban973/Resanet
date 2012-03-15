@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Résanet - {% block titre %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+       
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+
+        <div id="dialogAlerte" title="Erreur">
+        </div>
+        <script>
+            
+//--------------------------AFFICHAGE MESSAGE ERREUR ----------------------
+// fonction d'affichage d'alerte
+function alerte(message){
+    $('#dialogAlerte').empty();
+    $('#dialogAlerte').append('<p>'+message+'</p>');
+    $('#dialogAlerte').dialog({
+                            modal:true,
+                            buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+				}}
+			});
+
+}
+        </script>
+    </body>
+    
+</html>

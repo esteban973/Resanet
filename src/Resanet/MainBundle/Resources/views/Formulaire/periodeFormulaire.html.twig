@@ -1,0 +1,40 @@
+<form name="formulaire" id="formulaire">
+{% if erreurs is defined %}
+    <div id="erreurFormulaire">
+        <ul>
+        {%for erreur in erreurs%}
+                <li>{{erreur}}</li>
+        {%endfor%}
+        </ul>
+    </div>    
+{%endif%}
+
+<div id="formErreurJava">
+    <ul>
+    </ul>
+</div>
+{% for categorie in categories %}
+        <div>
+        <label>{{categorie.getNom}}</label>
+        <input type="text" id="prix{{categorie.getId}}" name="prix[{{categorie.getId}}]" 
+            
+            {% for periodeCat in periode.periodeCategories %}
+               {% if periodeCat.getCategorie.getId==categorie.getId %}
+                     value="{{ periodeCat.getPrix }}"
+                {% endif %}
+             {% endfor%} 
+           ></div>
+          {% endfor %}
+      <label>Début de la période</label><input type="text" id="dateDebut" name="dateDebut" value="{{periode.dateDebut|date("d/m/Y")|default("")}}">
+        <label>Fin de la période</label><input type="text" id="dateFin" name="dateFin" value="{{periode.dateFin|date("d/m/Y")|default("")}}">
+    <div id="bouton">
+<a id="valider" href="javascript:;" onclick="editer({{periode.id}})">Enregistrer</a>
+<a id="annuler" href="javascript:;" onclick="fermerPopup()">Fermer</a>
+</div>
+</form>
+<script>
+$('#dateDebut').datepicker();
+$('#dateFin').datepicker();
+$('#valider').button();
+$('#annuler').button();
+</script>

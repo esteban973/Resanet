@@ -1,0 +1,29 @@
+Admin_listeOptionRes:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:OptionRes:listeOptionRes }
+
+Admin_listeOptionResJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:OptionRes:listeOptionResJson }
+
+
+Admin_enregistrerOptionRes:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:OptionRes:enregistrerOptionRes }
+
+Admin_supprimerOptionRes:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:OptionRes:supprimerOptionRes }
+    
+Admin_supprFormOptionRes:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:OptionRes:supprimerFormOptionRes }
+    
+Admin_ajouterOptionRes:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:OptionRes:ajouterOptionRes }
+    
+Admin_updateOptionRes:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:OptionRes:updateOptionRes }
+

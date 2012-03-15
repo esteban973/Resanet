@@ -1,0 +1,37 @@
+ResanetMainBundle_categorie:
+    resource: "@ResanetMainBundle/Resources/config/routing/categorie.yml"
+    prefix:   /parametres/categorie/
+
+ResanetMainBundle_coupon:
+    resource: "@ResanetMainBundle/Resources/config/routing/coupon.yml"
+    prefix:   /parametres/coupon/
+    
+ResanetMainBundle_optionRes:
+    resource: "@ResanetMainBundle/Resources/config/routing/optionsRes.yml"
+    prefix:   /parametres/optionres/
+    
+ResanetMainBundle_chambre:
+    resource: "@ResanetMainBundle/Resources/config/routing/chambre.yml"
+    prefix:   /parametres/chambre/
+    
+   
+ResanetMainBundle_reduction:
+    resource: "@ResanetMainBundle/Resources/config/routing/reduction.yml"
+    prefix:   /parametres/reduction/
+    
+ResanetMainBundle_periode:
+    resource: "@ResanetMainBundle/Resources/config/routing/periode.yml"
+    prefix:   /parametres/periode/
+    
+ResanetMainBundle_indispo:
+    resource: "@ResanetMainBundle/Resources/config/routing/indispo.yml"
+    prefix:   /parametres/indispo/
+     
+ResanetMainBundle_client:
+    resource: "@ResanetMainBundle/Resources/config/routing/client.yml"
+    prefix:   /client/
+    
+ResanetMainBundle_reservation:
+    resource: "@ResanetMainBundle/Resources/config/routing/reservation.yml"
+    prefix:   /reservation/
+    

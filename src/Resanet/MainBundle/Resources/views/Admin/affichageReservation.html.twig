@@ -1,0 +1,34 @@
+{% extends 'ResanetMainBundle:Admin:affichageTableau.html.twig'%}
+    {#peut permettre de rajouter des boutons ou d'en enlever#}
+    {% block outils%}
+    <a href="{{path('Admin_ajouterReservation')}}" >Créer</a>
+    <a href="javascript:;" onclick="editerReservation()">Editer</a>
+    <a href="javascript:;" onclick="refreshTableau()">Rafraîchir</a>
+    <a href="{{path('Admin_etatReservation')}}" >Etat</a>
+    <a href="javascript:;" onclick="imprimerFacture()" >Imprimer</a>
+    {% endblock %}
+
+{% block formulairejavascript %}
+//----------------------Edition de la réservation -------------------
+
+function editerReservation(){
+      if (idEntite ==null) {
+                alerte('Vous devez sélectionnez un élément');
+                 return false;
+        } else {
+            window.location = "{{path('Admin_updateReservation')}}/"+idEntite;
+        }
+} 
+
+function imprimerFacture(){
+      if (idEntite ==null) {
+                alerte('Vous devez sélectionnez un élément');
+                 return false;
+        } else {
+            window.open("{{path('ResanetImpressionBundle_index')}}?id="+idEntite, "_blank");
+        }
+} 
+
+{% endblock%}
+
+

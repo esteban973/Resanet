@@ -1,0 +1,59 @@
+Admin_listeReservation:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Reservation:listeReservation }
+
+Admin_listeReservationJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Reservation:listeReservationJson }
+
+Admin_listeChambreDispoJson:
+    pattern:  /listeChambreDispoJson
+    defaults: { _controller: ResanetMainBundle:Reservation:listeChambreDispoJson }
+    
+Admin_listeChambreDispoJsonEdition:
+    pattern:  /listeChambreDispoJsonEdition
+    defaults: { _controller: ResanetMainBundle:Reservation:listeChambreDispoJsonEdition }
+
+Admin_enregistrerReservation:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Reservation:enregistrerReservation }
+    
+Admin_enregistrerReservationExistante:
+    pattern:  /enregistrerExistante
+    defaults: { _controller: ResanetMainBundle:Reservation:enregistrerReservationExistante }
+    
+Admin_enregistrerReservationAnnulee:
+    pattern:  /enregistrerAnnulee
+    defaults: { _controller: ResanetMainBundle:Reservation:enregistrerReservationAnnulee }
+
+Admin_annulerReservation:
+    pattern:  /annulerReservation
+    defaults: { _controller: ResanetMainBundle:Reservation:annulerReservation }
+    
+Admin_supprFormReservation:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Reservation:supprimerFormReservation }
+    
+Admin_ajouterReservation:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Reservation:ajouterReservation }
+    
+Admin_updateReservation:
+    pattern:  /update/{id}
+    defaults: { _controller: ResanetMainBundle:Reservation:updateReservation, id: null }
+    
+Admin_updateReservationPlanning:
+    pattern:  /updatePlanning
+    defaults: { _controller: ResanetMainBundle:Reservation:updateReservationPlanning }
+   
+Admin_editerReservationAnnulee:
+    pattern:  /editerReservationAnnulee/{id}
+    defaults: { _controller: ResanetMainBundle:Reservation:editerReservationAnnulee }
+
+Admin_listeOptionsJson:
+    pattern:  /listeOptionsJson
+    defaults: { _controller: ResanetMainBundle:Reservation:listeOptionsJson }
+    
+Admin_etatReservation:
+    pattern:  /etatReservation
+    defaults: { _controller: ResanetMainBundle:Reservation:etatReservation }

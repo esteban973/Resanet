@@ -1,0 +1,64 @@
+{# empty Twig template #}
+{% extends '::base.html.twig' %}
+{% import "ResanetBackendBundle:Macro:loading.html.twig" as loading %}
+
+{% block titre %}
+Administration du Panel - 
+{% block title %}
+{% endblock %}
+{% endblock %}
+
+ {% block stylesheets %}
+
+<script type="text/javascript" src="{{asset('bundles/resanetbackend/js/jquery-1.7.1.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetbackend/js/jquery-ui-1.8.16.custom.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('bundles/resanetbackend/js/jquery-ui-timepicker-addon.js') }}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetbackend/js/dataTable.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetbackend/js/dataTables.date.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetbackend/js/fonctionDate.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetbackend/js/jquery.tmpl.js')}}"></script>
+<link rel="stylesheet" type="text/css" href="{{asset('bundles/resanetbackend/css/jquery-ui-1.8.16.custom.css')}}" media="all" />
+<link rel="stylesheet" type="text/css" href="{{asset('bundles/resanetbackend/css/admin.css')}}" media="all" />
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block body %}
+
+{%if app.user.username is defined %}
+<div id="identifiant">Bonjour, {%if app.user.nomUtilisateur is defined %}{{ app.user.nomUtilisateur~' '~app.user.prenomUtilisateur }} {%else%}SuperAdmin{%endif%} <a href="{{path('deconnexion')}}">Se déconnecter</a></div>
+<script>
+    $('a','#identifiant').button();
+</script>
+{%endif%}
+
+{%block menu%}
+{%endblock%}
+
+<div id="general">
+    {%block general%}
+    <div id="adminGlobal">
+
+        <div id="adminColDroite">
+        {% include 'ResanetBackendBundle:Admin:widget.html.twig'%}
+        </div>
+
+         <div id="adminContent">
+        {% block content %}
+
+
+        {# ici le contenu des pages#}
+        {% endblock %}
+         </div>
+    </div>
+    </div>
+    {% endblock%}
+        
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+
+
+</script> 
+{% endblock %}

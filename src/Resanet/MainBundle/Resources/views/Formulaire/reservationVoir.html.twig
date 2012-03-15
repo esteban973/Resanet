@@ -1,0 +1,111 @@
+
+{% extends 'ResanetBackendBundle:Admin:admin.html.twig'%} 
+{%block menu%}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'Reservation'} %}
+{%endblock%}
+{% block title %}
+Réservation Soldée
+{% endblock %}
+{% block general %}
+
+
+
+<form name="formulaireReservation" id="formulaireReservation">
+   
+    <div class="clear"></div>
+    <div class="colResa30">
+        <strong>Réservation n°<span id="idResa">{{ resa.id}}</span></strong>
+            <div>
+            <p>Etat : <span id="etat">{{ resa.etat}}</span> {{if resa.annulation is defined}} le {{resa.annulation.date| date('d/m/Y')}}{{% endif%}}</p>
+            <p>Raison de l'annulation : {{resa.annulation.raison}}</p>
+            <p>Réalisée le {{resa.dateCreation | date('d/m/Y')}}</p>
+            <p><label>Fin d'option</label><span>{{resa.dateOption | date('d/m/Y')}}</span></p>
+             </div>
+            
+    </div> 
+    <div class="colResa30">
+        <strong>Dates</strong>
+        <div>
+            <label>Arrivée</label> <span>{{resa.dateArrivee | date('d/m/Y')}}</span>
+        </div>
+        <div>
+            <label>Départ</label> <span>{{resa.dateDepart | date('d/m/Y')}}</span>
+        </div>
+    </div>
+    
+      
+        <div class="colResa30">
+            <strong>Chambres</strong>
+            <div id="chbreListe">
+                {% for chambre in chambres%}
+                        <div class="chbre">
+                            <p>Chambre {{chambre.chambre}} - {{chambre.categorie}} - {{chambre.prix}}€</p>
+                        </div>
+                    {%else%}
+                    Les chambres n'existent plus
+                 {% endfor %}
+                    
+            </div>
+        </div>  
+            
+        <div class="clear"></div>
+        
+        <div class="colResa30">
+            <strong>Client</strong>
+            <div id="clientInfo">
+                <p> Client : {{resa.client.nom}} {{resa.client.prenom}} {{resa.client.societe | default('')}}</p>
+                <p> Téléphone : {{resa.client.telephone | default('') }} {{resa.client.mobile | default('') }}</p>
+                <p> Email : {{resa.client.email | default('-') }}</p>
+                <p> Adresse : {{resa.client.adresse}}</br>
+                {{resa.client.ville}}, {{resa.client.pays}}</p>
+                
+            </div>
+        </div> 
+           
+        
+             
+        
+        <div class="colResa30" >
+            <strong>Paiement</strong>
+            <div id="ajoutPaiement">Ajouter un paiement</div>
+            <div id="paiementListe">
+                  {% for paiement in resa.paiements %}
+                   <p> Moyen : {{paiement.moyen}} Montant : {{paiement.montant}}   Date :{{paiement.datePaiement | date('d/m/Y') }}</p>
+                                      
+                    {% endfor %}
+                
+            </div>
+        </div> 
+        
+               
+        <div class="colResa30" id="montant">
+            <strong>Montant</strong>
+            <div><label>Total des chambres</label><input type="text"  value="{{resa.getTotalChambres}}" readonly="true"/></div>
+            <div><label>Total des réductions</label><input type="text"  value="{{resa.getTotalReductions}}" readonly="true"/></div>
+            <div><label>Total</label><input type="text" name="totalApsReduc" id="totalApsReduc" value="{{resa.annulation.montant}}" readonly="true"/></div>
+            <div><label>Reste à payer</label><input type="text" name="reste" id="reste" value="0" readonly="true"/></div>
+        </div> 
+        
+        
+        <div class="clear"></div>
+        
+         <div class="colResa100" id="btnReservation" >
+           <button id="annulerReservation"> <a href="{{path('Admin_listeReservation')}}" >Fermer</a></button>
+        </div> 
+       
+        <div class="clear"></div>
+
+</form> 
+
+
+ <script>
+$(document).ready(function(){
+    
+    $('#annulerReservation').button({ icons: {primary:'ui-icon-closethick'}});
+});
+
+</script>
+{% endblock %}
+
+
+

@@ -1,0 +1,7 @@
+parameters:
+#    resanet_impression.example.class: Resanet\ImpressionBundle\Example
+
+services:
+#    resanet_impression.example:
+#        class: %resanet_impression.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

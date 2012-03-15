@@ -1,0 +1,29 @@
+Admin_listeChambre:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Chambre:listeChambre }
+
+Admin_listeChambreJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Chambre:listeChambreJson }
+
+
+Admin_enregistrerChambre:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Chambre:enregistrerChambre }
+
+Admin_supprimerChambre:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Chambre:supprimerChambre }
+    
+Admin_supprFormChambre:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Chambre:supprimerFormChambre }
+    
+Admin_ajouterChambre:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Chambre:ajouterChambre }
+    
+Admin_updateChambre:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Chambre:updateChambre }
+

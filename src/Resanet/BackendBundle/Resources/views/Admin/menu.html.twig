@@ -1,0 +1,18 @@
+{# empty Twig template #}
+<div id="navigation">
+    <ul>
+        <li><a {%if active == 'accueil'%} class="active"{%endif%} href="{{path('Admin_accueil')}}">Accueil</a></li>
+        <li><a {%if active == 'planning'%} class="active"{%endif%}href="{{path('Admin_planning')}}">Planning</a></li>
+        <li><a {%if active == 'Reservation'%} class="active"{%endif%}href="{{path('Admin_listeReservation')}}">Réservation</a></li>
+        <li><a {%if active == 'Client'%} class="active"{%endif%}href="{{path('Admin_listeClient')}}">Clients</a></li>
+        {% if is_granted('ROLE_SUPER_ADMIN') %}
+    <li><a {%if active == 'parametres'%} class="active"{%endif%}href="{{path('Admin_listeParametres')}}">Paramètres</a></li>
+     <li><a {%if active == 'stats'%} class="active"{%endif%}href="{{path('ResanetStatBundle_homepage')}}">Statistiques</a></li>   
+       {% endif %}
+        
+        <li><a target="_blank" href="{{path('ResanetSiteBundle_index')}}">Site</a></li>
+        
+        
+    </ul>
+</div>
+<div class="separator"></div>

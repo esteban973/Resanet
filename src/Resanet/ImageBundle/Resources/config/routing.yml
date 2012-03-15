@@ -1,0 +1,15 @@
+ResanetImageBundle_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: ResanetImageBundle:Default:index }
+
+ResanetImageBundle_upload:
+    pattern:  /upload
+    defaults: { _controller: ResanetImageBundle:Default:reception }
+    
+ResanetImageBundle_listeImage:
+    pattern:  /listeImage
+    defaults: { _controller: ResanetImageBundle:Default:listeImage }
+    
+ResanetImageBundle_supprimerImage:
+    pattern:  /supprimerImage
+    defaults: { _controller: ResanetImageBundle:Default:supprimerImage }

@@ -1,0 +1,150 @@
+<script type="text/javascript" src="{{asset('bundles/resanetimage/js/plupload.full.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetimage/js/jquery.plupload.queue/jquery.plupload.queue.js')}}"></script>
+<script type="text/javascript" src="{{asset('bundles/resanetimage/js/i18n/fr.js')}}"></script>
+
+<!-- Load Queue widget CSS and jQuery -->
+<style type="text/css">@import url({{asset('bundles/resanetimage/js/jquery.plupload.queue/css/jquery.plupload.queue.css')}});</style>
+
+
+<div id="images"></div>
+<div class="clear"></div>
+<div id="barreImage">
+<span id="addImage" >Ajouter des images</span>
+<span id="supprImage" >Supprimer</span>
+</div>
+<form id="envoyerFichier" title="Ajouter des fichiers">
+    
+    <div  id="uploader">
+        <p>Votre navigateur ne supporte pas HTML5. <a href="http://www.google.fr/chrome">Mettez à jour votre navigateur</a> </p>
+	</div>
+     
+</form>
+
+<!--------------------------------- TEMPLATES JQUERY pour mettre en forme les données passées en Json*-->
+
+<!-- template pour les images -->
+<script id="imageTemplate" type="text/x-jquery-tmpl">
+    <div class="imageBundle" image="${img}"  style="float:left; margin:10px; padding: 5px; background-color: white; border: solid 1px #CCC;"><img src="{{asset('uploader/img/thumbnail/')}}${img}"></div>
+</script>
+
+
+<script>
+$('span', '#barreImage').button();
+$('#envoyerFichier').hide();
+afficheImage();
+var imageSelect;
+$('#addImage').click(function(){
+    $('#envoyerFichier').dialog({
+                    width: 600,
+                    buttons : [{text: 'Fermer', 
+                            click : function(){
+                                $(this).dialog("close"); 
+                                afficheImage();
+                            }}]
+                    });
+   upload();
+})
+
+$('#supprImage').click(function(){
+    if (imageSelect== undefined) {
+        alerte('Vous devez sélectionner une image');
+        return false
+    }
+    supprimeImage();
+
+})
+
+$("#images").click(function(e){
+     if( $(e.target).is('img') ) changeCouleur.call(e.target,e);
+});
+
+function changeCouleur(){
+    if (imageSelect!=undefined){
+        imageSelect.css({'background-color': 'white'});
+    };
+    if (imageSelect!=$(this).parent()) {
+        imageSelect=$(this).parent();
+        $(this).parent().css({'background-color': '#599FCF'});
+       }
+}
+
+function upload() {
+	$("#uploader").pluploadQueue({
+		// General settings
+		runtimes : 'html5',
+		url : '{{path('ResanetImageBundle_upload')}}',
+		max_file_size : '10mb',
+		chunk_size : '1mb',
+		unique_names : true,
+
+		// Resize images on clientside if we can
+		resize : {width : 800, height : 600, quality : 90},
+
+		// Specify what files to browse for
+		filters : [
+			{title : "Fichiers Image", extensions : "jpg,jpeg"}
+		],
+
+	});
+
+	// Client side form validation
+	$('form').submit(function(e) {
+        var uploader = $('#uploader').pluploadQueue();
+
+        // Files in queue upload them first
+        if (uploader.files.length > 0) {
+            // When all files are uploaded submit form
+            uploader.bind('StateChanged', function() {
+                if (uploader.files.length === (uploader.total.uploaded + uploader.total.failed)) {
+                    $('form')[0].submit();
+                }
+            });
+                
+            uploader.start();
+        } else {
+            alerte('Vous devez mettre un fichier en attente.');
+        }
+
+        return false;
+    });
+}
+
+function afficheImage(){
+    
+        $.ajax({
+        url: "{{path('ResanetImageBundle_listeImage')}}",
+        success: function (data){
+            $('#images').empty();
+            var reponse = eval('(' + data + ')');
+            
+            // charge le template avec les donnees récupérese en json les options value
+            for(var i in reponse){
+                $("#imageTemplate").tmpl(reponse[i]).appendTo( '#images' );
+            }
+
+        }
+        });
+         
+        
+        
+}
+
+function supprimeImage(){
+    imageSelect.hide();
+    var img=imageSelect.attr('image');
+    
+    $.ajax({
+        url: "{{path('ResanetImageBundle_supprimerImage')}}",
+        data: 'img='+img,
+        success: function (data){
+            imageSelect.remove();
+            imageSelect=undefined;
+        }
+        });
+        
+       
+}
+
+
+</script>
+    

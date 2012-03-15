@@ -1,0 +1,7 @@
+parameters:
+#    resanet_site.example.class: Resanet\SiteBundle\Example
+
+services:
+#    resanet_site.example:
+#        class: %resanet_site.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

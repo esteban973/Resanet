@@ -1,0 +1,43 @@
+{% extends 'ResanetBackendBundle:Admin:admin.html.twig'%}
+
+{% block title %}
+Accueil
+{% endblock %}
+
+{%block menu%}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'accueil'} %}
+{%endblock%}
+
+
+{% block content %}
+<div class="imageBtn">
+    <a href="{{path('Admin_listeReservation')}}"><img src="{{asset('bundles/resanetbackend/images/')}}reservation.png" alt="" />
+    <p>Réservation</p></a>
+</div>
+<div class="imageBtn">
+    <a href="{{path('Admin_ajouterReservation')}}"><img src="{{asset('bundles/resanetbackend/images/')}}addreservation.png" alt="" />
+    <p>Ajouter</p></a>
+</div>
+<div class="imageBtn">
+    <a href="{{path('Admin_planning')}}"><img src="{{asset('bundles/resanetbackend/images/')}}planning.png" alt="" />
+    <p>Planning</p></a>
+</div>
+<div class="imageBtn">
+    <a href="{{path('Admin_listeClient')}}"><img src="{{asset('bundles/resanetbackend/images/')}}client.png" alt="" />
+    <p>Client</p></a>
+</div>
+{% if is_granted('ROLE_SUPER_ADMIN') %}
+    <div class="imageBtn">
+    <a href="{{path('Admin_listeParametres')}}"><img src="{{asset('bundles/resanetbackend/images/')}}parametres.png" alt="" />
+    <p>Paramètres</p></a>
+</div>
+{% endif %}
+
+<div class="imageBtn">
+    <a href="#"><img src="{{asset('bundles/resanetbackend/images/')}}aide.png" alt="" />
+    <p>Aide</p></a>
+</div>
+<script>
+    $('a','.imageBtn').button();
+    </script>
+{%endblock%}

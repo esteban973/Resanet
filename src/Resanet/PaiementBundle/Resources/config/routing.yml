@@ -1,0 +1,12 @@
+ResanetPaiementBundle_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: ResanetPaiementBundle:Default:index }
+
+ResanetPaiementBundle_getToken:
+    pattern:  /getToken
+    defaults: { _controller: ResanetPaiementBundle:Default:getToken }
+    
+ResanetPaiementBundle_doPayment:
+    pattern:  /{id}/{token}/doPayment
+    defaults: { _controller: ResanetPaiementBundle:Default:doPayment }
+    

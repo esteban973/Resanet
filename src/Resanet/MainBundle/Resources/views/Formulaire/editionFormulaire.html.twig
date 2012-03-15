@@ -1,0 +1,15 @@
+<form name="formulaire" id="formulaire">
+<div id="formErreurJava">
+    <ul>
+    </ul>
+</div>
+{{ form_widget(form) }}
+    <div id="bouton">
+<a id="valider" href="javascript:;" onclick="editer({{entity.id}})">Enregistrer</a>
+<a id="annuler" href="javascript:;" onclick="fermerPopup()">Fermer</a>
+</div>
+</form>
+<script>
+$('#valider').button();
+$('#annuler').button();
+</script>

@@ -1,0 +1,23 @@
+{% extends 'ResanetBackendBundle:Admin:admin.html.twig'%}
+{% set param=['Categorie','Chambre','Coupon','Indispo','OptionRes','Periode', 'Reduction', 'Utilisateur'] %}
+{% block title %}
+{{titre}}
+{% endblock %}
+
+{%block menu%}
+
+{% if nom in param %}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'parametres'} %}
+{% else %}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : nom} %}
+{%endif%}
+{%endblock%}
+
+{% block content %}
+
+{% if nomEntite is defined %}
+{% include 'ResanetMainBundle:Admin:affichage'~nomEntite~'.html.twig'%}
+{%else %}
+{% include 'ResanetMainBundle:Admin:affichageTableau.html.twig'%}
+{%endif%}
+{% endblock %}

@@ -1,0 +1,11 @@
+Admin_listeParametres:
+    pattern:  /parametres
+    defaults: { _controller: ResanetBackendBundle:Admin:parametres }
+    
+Admin_accueil:
+    pattern:  /
+    defaults: { _controller: ResanetBackendBundle:Admin:accueil }
+    
+Admin_planning:
+    pattern:  /planning
+    defaults: { _controller: ResanetBackendBundle:Admin:planning }

@@ -1,0 +1,39 @@
+ResanetSiteBundle_index:
+    pattern:  /
+    defaults: { _controller: ResanetSiteBundle:Default:index }
+
+ResanetSiteBundle_hotel:
+    pattern:  /hotel
+    defaults: { _controller: ResanetSiteBundle:Default:index }
+    
+ResanetSiteBundle_chambres:
+    pattern:  /chambres
+    defaults: { _controller: ResanetSiteBundle:Default:index } 
+    
+ResanetSiteBundle_contact:
+    pattern:  /contact
+    defaults: { _controller: ResanetSiteBundle:Default:index }
+    
+ResanetSiteBundle_acces:
+    pattern:  /acces
+    defaults: { _controller: ResanetSiteBundle:Default:index }
+    
+ResanetSiteBundle_reservation:
+    pattern:  /reservation
+    defaults: { _controller: ResanetSiteBundle:ReservationFront:reservationForm }
+    
+ResanetSiteBundle_reservationErreur:
+    pattern:  /reservationErreur
+    defaults: { _controller: ResanetSiteBundle:ReservationFront:reservationErreurForm }
+    
+ResanetSiteBundle_reservationEnregistrer:
+    pattern:  /reservationEnregistrer
+    defaults: { _controller: ResanetSiteBundle:ReservationFront:reservationEnregistrer }
+    
+ResanetSiteBundle_nbChambresCategories:
+    pattern:  /nbChambresCategories
+    defaults: { _controller: ResanetSiteBundle:ReservationFront:nbChambresCategories }
+    
+ResanetSiteBundle_verifCouponFrontEnd:
+    pattern:  /verifCouponFrontEnd
+    defaults: { _controller: ResanetSiteBundle:ReservationFront:verifCouponFrontEnd }

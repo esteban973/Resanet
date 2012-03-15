@@ -1,0 +1,7 @@
+parameters:
+#    resanet_planning.example.class: Resanet\PlanningBundle\Example
+
+services:
+#    resanet_planning.example:
+#        class: %resanet_planning.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

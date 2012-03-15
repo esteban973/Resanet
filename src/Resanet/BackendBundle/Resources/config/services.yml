@@ -1,0 +1,7 @@
+parameters:
+#    resanet_backend.example.class: Resanet\BackendBundle\Example
+
+services:
+#    resanet_backend.example:
+#        class: %resanet_backend.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

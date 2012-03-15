@@ -1,0 +1,27 @@
+Admin_listePeriode:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Periode:listePeriode }
+
+Admin_listePeriodeJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Periode:listePeriodeJson }
+
+Admin_enregistrerPeriode:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Periode:enregistrerPeriode }
+
+Admin_supprimerPeriode:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Periode:supprimerPeriode }
+    
+Admin_supprFormPeriode:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Periode:supprimerFormPeriode }
+    
+Admin_ajouterPeriode:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Periode:ajouterPeriode }
+    
+Admin_updatePeriode:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Periode:updatePeriode }

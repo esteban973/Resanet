@@ -1,0 +1,37 @@
+Admin_listeClientTableau:
+    pattern:  /listeTableau
+    defaults: { _controller: ResanetMainBundle:Client:listeClientTableau }
+    
+Admin_listeClient:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Client:listeClient }
+
+Admin_listeClientJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Client:listeClientJson }
+
+Admin_getInfoClient:
+    pattern:  /getInfoClient
+    defaults: { _controller: ResanetMainBundle:Client:getInfoClient }
+
+
+Admin_enregistrerClient:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Client:enregistrerClient }
+
+Admin_supprimerClient:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Client:supprimerClient }
+    
+Admin_supprFormClient:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Client:supprimerFormClient }
+    
+Admin_ajouterClient:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Client:ajouterClient }
+    
+Admin_updateClient:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Client:updateClient }
+

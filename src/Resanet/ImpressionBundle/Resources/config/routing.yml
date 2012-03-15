@@ -1,0 +1,11 @@
+ResanetImpressionBundle_facture:
+    pattern:  /print
+    defaults: { _controller: ResanetImpressionBundle:Default:printFacture }
+    
+ResanetImpressionBundle_index:
+    pattern:  /print/index
+    defaults: { _controller: ResanetImpressionBundle:Default:index }
+    
+ResanetImpressionBundle_test:
+    pattern:  /print/test
+    defaults: { _controller: ResanetImpressionBundle:Default:test }

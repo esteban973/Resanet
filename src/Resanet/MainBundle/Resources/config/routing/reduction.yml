@@ -1,0 +1,29 @@
+Admin_listeReduction:
+    pattern:  /liste
+    defaults: { _controller: ResanetMainBundle:Reduction:listeReduction }
+
+Admin_listeReductionJson:
+    pattern:  /listeJson
+    defaults: { _controller: ResanetMainBundle:Reduction:listeReductionJson }
+
+
+Admin_enregistrerReduction:
+    pattern:  /enregistrer
+    defaults: { _controller: ResanetMainBundle:Reduction:enregistrerReduction }
+
+Admin_supprimerReduction:
+    pattern:  /supprimer
+    defaults: { _controller: ResanetMainBundle:Reduction:supprimerReduction }
+    
+Admin_supprFormReduction:
+    pattern:  /supprForm
+    defaults: { _controller: ResanetMainBundle:Reduction:supprimerFormReduction }
+    
+Admin_ajouterReduction:
+    pattern:  /ajouter
+    defaults: { _controller: ResanetMainBundle:Reduction:ajouterReduction }
+    
+Admin_updateReduction:
+    pattern:  /update
+    defaults: { _controller: ResanetMainBundle:Reduction:updateReduction }
+

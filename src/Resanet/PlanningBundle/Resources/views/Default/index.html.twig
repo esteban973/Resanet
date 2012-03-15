@@ -1,0 +1,577 @@
+{%extends 'ResanetBackendBundle:Admin:admin.html.twig'%}
+
+{%block menu%}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'planning'} %}
+{%endblock%}
+
+{%block title%}
+Planning
+{%endblock%}
+
+{% block stylesheets %}
+<style>
+
+
+        #boutGauche {
+
+            font-size: 120%;
+            margin-right:30px;    
+        }
+
+        #boutDroit {
+            float: right;
+            font-size: 120%
+        }
+
+        #legende {
+            margin-top: 20px;
+        }
+        .legendeTemplate {
+            display: inline-block;
+            text-align: center;
+            height:20px; 
+            width:20px;
+            margin:5px 10px 0 20px;
+
+        }
+        .vide{
+            border:none;
+        }
+        #thead td {
+            min-width: 32px;
+        }
+        #tbody tr {
+            height: 30px;
+        }
+
+        #rowJour {
+            letter-spacing: -1px;
+        }
+        .chambre {
+            font-weight: bold;
+            width: 70px;
+        }
+        .normal, .chambre {
+            color: #3383BB;
+            font-weight: bold;
+            font-size: 100%;
+            background: #eeeeee url(images/ui-bg_glass_60_eeeeee_1x400.png) 50% 50% repeat-x;
+        }
+
+        #table {
+            border-collapse: collapse;
+            border:none;
+        }
+        .legendeTemplate, td.normal, td.chambre, td.td3Template, td.td1Template, td.td2Template, td.td4Template, td.td5Template, td.td6Template, td.td7Template{
+            border-style: solid;
+            border-width: 1px;
+            border-color: #868686;
+        }
+
+        .td1Template {
+            background-color:grey;
+        }
+        .td2Template {
+            background-color:#FFFACD;
+        }
+        .td3Template {
+            background-color:#FFD700;
+        }
+        .td4Template {
+            background-color:#6495ED;
+        }
+        .td5Template {
+            background-color:#FF69B4;
+        }
+        .td6Template {
+            background-color:#DC143C;
+        }
+        .td7Template {
+            background-color:#98FB98;
+        }
+        #tooltip {
+            background-color:#000;
+            border:1px solid #fff;
+            padding:10px 15px;
+            width:200px;
+            color:#fff;
+            text-align:left;
+            font-size:12px;
+            position: absolute;
+        }
+
+        .ui-selecting { background: #FCBDEB; }     
+        .ui-selected { background: #FCBDEB; }  
+    </style>
+{{parent()}}
+{% endblock%}
+{% block general%}
+    <script type="text/javascript" src="{{asset('bundles/resanetplanning/js/jquery.tooltip.min.js')}}"></script>
+{% import "ResanetBackendBundle:Macro:loading.html.twig" as loading %}
+
+
+
+    <div class='marge'>
+
+        <span id="boutGauche"> < </span>
+
+        <span id='categorie'>
+            Catégorie
+            <select id="selectCat">
+                <option value="0">Toutes</option>
+        {% for categorie in categories%}
+                <option value="{{categorie.id}}">{{categorie.nom}}</option>
+        {% endfor %} 
+            </select>
+        </span>
+
+        <span>
+            <label>Du </label><input id='dateDeb'name="date1" value="{{dateDebut | date("d/m/Y")}}"/>
+            <label>Au </label><input id='dateFin' name="date2" value="{{dateFin | date("d/m/Y")}}" />
+        </span>
+        <span id="boutAct"> Actualiser </span>  
+
+
+        <span id="loading">
+            <span >{{loading.loading()}}</span> Envoi en cours
+        </span>
+        <span id="boutDroit"> > </span>   
+    </div><!--marge-->
+
+
+
+    <div id='tab'>
+        <!--tableau rempli par planning.js.html-->
+    </div>
+
+
+    <div id="legende" class='marge'>
+    </div>
+
+    <script id="td1Template"  type="text/x-jquery-tmpl">
+        <td class="td1Template" 
+            data-etat=${etat}></td>
+    </script>
+    <script id="td2Template" type="text/x-jquery-tmpl">
+        <td class="td2Template"
+            data-etat=${etat} data-prix=${prix}></td>
+    </script>
+    <script id="td3Template"  type="text/x-jquery-tmpl">
+        <td class="td3Template"
+            data-etat=${etat} data-date=${date} data-nom="${nomClient}"
+            data-idres=${idReservation} data-datedep=${dateDepart} data-datearr=${dateArrivee}
+            ></td>
+    </script>
+    <script id="td4Template" type="text/x-jquery-tmpl">
+        <td class="td4Template"
+            data-etat=${etat} data-date=${date} data-nom="${nomClient}"
+            data-idres=${idReservation} data-datedep=${dateDepart} data-datearr=${dateArrivee}
+            ></td>
+    </script>
+    <script id="td5Template" type="text/x-jquery-tmpl">
+        <td class="td5Template"
+            data-etat=${etat} data-date=${date} data-nom="${nomClient}"
+            data-idres=${idReservation} data-datedep=${dateDepart} data-datearr=${dateArrivee}
+            ></td>
+    </script>
+    <script id="td6Template" type="text/x-jquery-tmpl">
+        <td class="td6Template"
+            data-etat=${etat} data-date=${date} data-nom="${nomClient}"
+            data-idres=${idReservation} data-datedep=${dateDepart} data-datearr=${dateArrivee}
+            ></td>
+    </script>
+    <script id="td7Template" type="text/x-jquery-tmpl">
+        <td class="td7Template"
+            data-etat=${etat} data-chambre=${chambre} data-date=${date} >${prix}</td>
+    </script>
+
+    <script id="legendeTemplate" type="text/x-jquery-tmpl">
+        <div style='float:left'><div class="legendeTemplate" style="background-color:${couleur};"></div>${etat}</div>
+    </script>
+
+    <script type="text/javascript">
+
+
+    ////////////////////////////Variables//////////////////////////////////
+    var selectCat;
+    var selectValue;//au chargement de la page, la valeur du select est 0 (le controleur renvoie toutes les chambres)
+    var couleurs = [{etat:"Indisponible",couleur:"grey"},{etat:"Prix non défini",couleur:"#FFFACD"},{etat:"Option",couleur:"#FFD700"},{etat:"Confirme",couleur:"#6495ED"},{etat:"En cours",couleur:"#FF69B4"},{etat:"Terminée",couleur:"#DC143C"},{etat:"Libre",couleur:"#98FB98"}];
+    var jourSemaine = {"0":"D","1":"L","2":"M","3":"M","4":"J","5":"V","6":"S"};
+    var moisListe = {"1":"JANVIER","2":"FEVRIER","3":"MARS","4":"AVRIL","5":"MAI","6":"JUIN",
+                     "7":"JUILLET","8":"AOUT","9":"SEPTEMBRE","10":"OCTOBRE","11":"NOVEMBRE","12":"DECEMBRE"}
+    var nbJoursDecal = 1000 * 60 * 60 * 24 * 6;//decallage de l'affichage du planning en millisecondes
+    $("#dateDeb").datepicker();
+    $("#dateFin").datepicker();
+    var dateDeb= $('#dateDeb').val();
+    var dateFin= $('#dateFin').val();
+    $('#boutAct').button();
+    $("#boutGauche").button();
+    $("#boutDroit").button();
+    /////////////////////////////fin variables///////////////////////////////
+
+    $(document).ready(function(){
+        var param = chargerDonnees();
+        affichePlanning(param);
+       });
+
+    //
+    //
+    /////////////////////////les intéractions////////////////////////////////
+
+    $('#dateDeb').change(function() {
+        dateDeb = $('#dateDeb').val();
+        });
+
+    $('#dateFin').change(function() {
+        dateFin = $('#dateFin').val();
+        });
+
+     $("#selectCat").change(function(){
+           //selectValue = $('#selectCat').val();
+           param = chargerDonnees();
+           affichePlanning(param);
+     });
+
+    $("#boutAct").click(function(){
+        if(compareDates(dateFin,dateDeb) != 1){
+            alert('dates incorrectes');
+            return;
+        };
+        param = chargerDonnees();
+        affichePlanning(param);
+    });
+
+    $("#boutGauche").click(function(){
+        param = modifDonnees('moins');
+        affichePlanning(param);
+    });
+    
+    $("#boutDroit").click(function(){
+        param = modifDonnees('plus');
+        affichePlanning(param);
+    });
+    //////////////////////fin intéractions/////////////////////////////
+
+
+    ////////////////////////traitement des données///////////////////////////
+
+    //requête ajax d'envoi des données au serveur
+    function affichePlanning(param) {
+        $('#loading').show();
+        $('#legende').hide();
+        $('#tab').hide();
+        //var donnees = chargerDonnees(categorie);
+        //requête ajax
+            $.ajax({
+                url: "{{ path('Admin_tableauDisponibilites') }}",
+                cache: false,
+                data: param,
+                success: function(dat){
+                            tabReponse =JSON.parse(dat);
+                            majTable(tabReponse);
+                            $('#loading').hide();
+                            $('#legende').show();
+                            $('#tab').show();
+                         }
+            });
+    }
+
+    //fonction appelée lors du clic sur les boutons gauche ou droit
+    function modifDonnees(sens) {
+  
+        //date de debut
+        dateDeb = creerDate(dateDeb);//dateDeb transformée en objet date
+        dateFin = creerDate(dateFin);//dateFin transformée en objet date
+    
+        switch (sens) {
+            case 'moins':   dateDebModif = new Date(dateDeb.getTime()-(nbJoursDecal));//on retranche les jours
+                            dateFinModif = new Date(dateFin.getTime()-(nbJoursDecal));//on retranche les jours;
+                break;
+        
+            case 'plus' :   dateDebModif = new Date(dateDeb.getTime()+(nbJoursDecal));//on ajoute les jours
+                            dateFinModif = new Date(dateFin.getTime()+(nbJoursDecal));//on ajoute les jours;
+                break;
+        }
+
+        //dateDeb et dateFin retrouvent leur forme 01/01/2012
+        dateDeb = changeFormatDate1(dateDebModif);
+        dateFin = changeFormatDate1(dateFinModif);
+    
+        //mise à jour des dates dans les inputs
+        $('#dateDeb').attr('value',dateDeb);
+        $('#dateFin').attr('value',dateFin);
+    
+        //dates au format yyyy-mm-dd pour l'envoi au serveur
+        dateD = changeFormatDate(dateDebModif);
+        dateF = changeFormatDate(dateFinModif);
+    
+        return formatterDonnees(dateD,dateF);
+    }
+    function changeFormatDate1(d){
+        annee=d.getFullYear();
+        mois= (d.getMonth()<10) ? ('0'+(d.getMonth()+1)) : d.getMonth()+1 ;
+        jour=(d.getDate()<10) ? ('0'+d.getDate()) : d.getDate();
+        return (jour+'/'+mois+'/'+annee);
+     
+    }
+    //collecte des données à envoyer dans la requête ajax
+    function chargerDonnees() {
+
+        //date de debut
+        dateDeb = $('#dateDeb').val();
+        dateD = changeFormat(dateDeb);//date au format yyyy-mm-dd
+    
+        //date de fin
+        dateFin = $('#dateFin').val();
+        dateF = changeFormat(dateFin);//date au format yyyy-mm-dd
+    
+        return formatterDonnees(dateD,dateF);
+    }
+    //crée la chaine à envoyer au serveur dans la xhr
+    function formatterDonnees(dateD,dateF) {
+        var DATADeb = 'dateDebut='+dateD;
+        var DATAFin = 'dateFin='+dateF;
+    
+        categorie = $('#selectCat').val();
+        //categorie
+        if (typeof(categorie)=='undefined' || categorie=="0"){
+           var DATAcat = '';
+        }else {
+            var DATAcat = 'catId='+categorie;
+        }
+
+        //les données à envoyer au serveur
+        DATA = DATADeb+'&'+DATAFin+'&'+DATAcat;
+        return DATA;
+    }
+    /////////////////////////fin traitement des données////////////////////////
+
+
+    ////////////////FONCTION D AFFICHAGE DU PLANNING\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    function majTable(donnee){
+
+        $("#selectCat").show();
+        $("#tab").empty();
+    
+        var tab = $("#tab");//la div contenant la table
+
+    //CONSTRUCTION DU TABLEAU
+
+        $("<table >").attr('id','table')
+                    .appendTo(tab);
+        var table = $("#table");
+
+        $("<thead>").attr('id','thead')
+                    .appendTo(table);
+        var thead = $("#thead");
+
+        $("<tbody>").attr('id','tbody')
+                    .appendTo(table);
+        var tbody  = $("#tbody");
+
+        var rowhead=$("<tr>");
+        $("<td class=\"vide\">").appendTo(rowhead);//insère une cellule vide au début de la première ligne
+
+
+    //REMPLISSAGE DU THEAD
+        //Première ligne contenant l'année ex:2011
+        var rowAnnee = $("<tr>").attr("id","rowAnnee");
+        $("<td class=\"vide\">").appendTo(rowAnnee);//insère une cellule vide au début de la première ligne
+        rowAnnee.appendTo(thead);
+        //Deuxième ligne contenant le mois ex:DECEMBRE
+        var rowMois = $("<tr>").attr("id","rowMois");
+        $("<td class=\"vide\">").appendTo(rowMois);//insère une cellule vide au début de la première ligne
+        rowMois.appendTo(thead);
+        //Troisième ligne contenant la date ex: L 20
+        var rowJour = $("<tr>").attr("id","rowJour");;
+        $("<td class=\"vide\">").appendTo(rowJour);//insère une cellule vide au début de la première ligne
+        rowJour.appendTo(thead);
+    
+    
+        var d;  //contiendra le dernier n° de chambre renvoyé par la requête
+                //ceci permet de construire le thead du tableau en renvoyant la liste des dates
+        for (d in donnee) {
+            d = d;
+        }
+
+        var ligne_json = donnee[d];//ligne_json est un tableau du type  {"19-12-2011":{"etat":7,"prix":10},"20-12-2011":{"etat":7,"prix":9}}
+        var anneeTemp = 0;
+        var moisTemp = 0;
+        var colspanAnnee = 1;
+        var colspanMois = 1;
+    
+        for (var ls in ligne_json) {//ls contient les dates ex:14-12-2011
+            var dateHead = creerDate(ls);//conversion de ls en objet Date
+        
+         //ligne des années
+            var annee = dateHead.getFullYear();
+        
+            if (anneeTemp != annee) {
+                var tdAnnee = $("<td class='normal'>").text(annee)
+                                       .appendTo(rowAnnee)
+                colspanAnnee = 1;
+            }else{
+                    colspanAnnee++;
+                 }
+            tdAnnee.attr("colspan",colspanAnnee);//colspanAnnee contiendra la dernière valeur incrémentée avant le passage à l'année suivante
+            var anneeTemp = annee;
+        
+         //ligne des mois
+            var mois = moisListe[dateHead.getMonth()+1];
+        
+            if (moisTemp != mois) {
+                var tdMois = $("<td class='normal'>").text(mois)
+                                      .appendTo(rowMois)
+                colspanMois = 1;
+            }else {
+                colspanMois++;
+                }
+            tdMois.attr("colspan",colspanMois);//colspanMois contiendra la dernière valeur incrémentée avant le passage au mois suivant
+            var moisTemp = mois;
+      
+            var dateJour = jourSemaine[dateHead.getDay()];//Lun
+            var dateText = (dateHead.getDate()<10) ? ('0'+dateHead.getDate()) : dateHead.getDate();//09
+      
+          //ligne des jours
+            $("<td class='normal'>").text(dateJour+' '+dateText)
+                      .css("color", "red")
+                      .appendTo(rowJour)
+        }
+    
+        table.append(thead);
+    //FIN THEAD
+
+    //REMPLISSAGE DE TBODY
+
+         for (var don in donnee) {          //don contient le nom de la chambre ex:101
+            var ligne_json = donnee[don];   //ligne_json est un tableau du type  {"19-12-2011":{"etat":7,"prix":10},"20-12-2011":{"etat":7,"prix":9}
+                                            //pour la chambre de nom don
+
+            var trow = $("<tr id="+don+">");
+            $("<td  class='chambre'>").text(don)
+                                      .appendTo(trow);
+        
+            for (var c in ligne_json) { //c contient la date ex:19-12-2011
+                var infos = ligne_json[c]; //{"etat":7,"prix":10}
+                infos['chambre'] = don;
+                infos['date'] = c;
+                var etat = infos['etat'];//infos['etat']=7
+            
+                switch(etat)
+                {
+                case 1 : $("#td1Template").tmpl(infos).appendTo(trow);
+                    break;
+                case 2 : $("#td2Template").tmpl(infos).appendTo(trow);
+                    break;
+                case 3 : $("#td3Template").tmpl(infos).appendTo(trow);
+                    break;
+                case 4 : $("#td4Template").tmpl(infos).appendTo(trow);
+                    break;
+                case 5 : $("#td5Template").tmpl(infos).appendTo(trow);
+                    break;
+                case 6 : $("#td6Template").tmpl(infos).appendTo(trow);
+                    break;
+                case 7 : $("#td7Template").tmpl(infos).appendTo(trow);
+                     
+                    break;
+                 default : $("#td2Template").tmpl(infos).appendTo(trow);
+                
+                }
+            }
+            trow.appendTo(tbody);
+         }
+    //FIN TBODY
+
+         table.append(tbody);
+     
+    
+
+   
+
+    //les tooltip
+        var param={ bodyHandler: function(){ return test($(this))}, delay:0};
+        var tabTemp=[3,4,5,6];//on n'affiche un tooltip que pour les états 3,4,5,6
+        for (i in tabTemp) {
+            $(".td"+tabTemp[i]+"Template").tooltip(param);
+        }   
+
+    $("#tbody").selectable(
+    {  filter : 'td',
+        distance: 20,
+        stop: function(event, ui) { 
+            var tab=[];
+            var idChbreref= undefined;
+            var i=0;
+            $('.ui-selected').each(function(){
+                if (!($(this).hasClass('td7Template'))){ 
+                    $("td").removeClass('ui-selected');
+                    tab.length=0;
+                    return false;
+                } else {
+                    idChbre=$(this).data('chambre');
+                    if ((idChbre !=idChbreref)){
+                        idChbreref =idChbre;
+                        i++;
+                        tabC=[$(this).data('chambre'),$(this).data('date'), $(this).data('date')];
+                        tab[i]=tabC;
+                    }
+
+                    else {
+                        tabC=tab[i];
+                        tabC.pop();
+                        tabC.push($(this).data('date'));
+                    }
+                }
+            });
+            if (tab.length==0) return false;
+           tab.shift();
+           
+          for (var i in tab){
+                if (i==0) data="dateArr="+tab[i][1]+"&dateDep="+tab[i][2];
+                 data=data+"&chambre["+i+"]="+tab[i][0];
+            }
+            window.location="{{ path('Admin_updateReservationPlanning') }}?"+data;
+        
+        }
+        
+    });
+    $('.ui-selectee').each(function(){
+                if (!($(this).hasClass('td7Template'))){ 
+                    $(this).removeClass('ui-selectee');
+                }
+            });
+    //sur clic
+
+    $(".td3Template").click(function(){
+            window.location="{{ path('Admin_updateReservation') }}/"+$(this).data('idres');
+    });
+
+    $(".td4Template").click(function(){
+            window.location="{{ path('Admin_updateReservation') }}/"+$(this).data('idres');
+    });
+
+    $(".td5Template").click(function(){
+            window.location="{{ path('Admin_updateReservation') }}/"+$(this).data('idres');
+    });
+}//FIN majTable
+
+    //pour une td donnée, renvoie le contenu de la tooltip associée
+    function test(selector) { 
+          var reponse='Res n°'+(selector.data('idres'))+'<br>'+(selector.data('nom'))+'<br>Du '+(selector.data('datearr'))+' Au '+(selector.data('datedep'));
+          return (reponse); 
+    }
+
+
+    //FIN TABLEAU
+
+    //AFFICHAGE LEGENDE
+         $("#legende").empty();
+         for (var coul in couleurs) {
+            $("#legendeTemplate").tmpl(couleurs[coul]).appendTo("#legende");
+         }
+        </script>
+
+
+
+{% endblock%}

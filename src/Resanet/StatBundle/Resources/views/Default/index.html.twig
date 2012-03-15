@@ -1,0 +1,166 @@
+{%extends 'ResanetBackendBundle:Admin:admin.html.twig'%}
+{%block menu%}
+{% include 'ResanetBackendBundle:Admin:menu.html.twig' with {'active' : 'stats'} %}
+{%endblock%}
+{% block general%}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<div>
+<span id='categorie'>
+        Catégorie
+        <select id="selectCat">
+            <option value="0">Toutes</option>
+        {% for categorie in categories%}
+            <option value="{{categorie.id}}">{{categorie.nom}}</option>
+        {% endfor %} 
+        </select>
+</span>
+
+<span id='typeAffich'>
+    Type d'affichage
+    <select id="selectType">
+        <option value="0">Par mois</option>
+        <option value="1">Par semaine</option>
+        <option value="2">Par jour</option>
+    </select>
+    <label>Du </label><input id='dateDeb'name="date1" value="{{dateDebut | date("d/m/Y")}}"/>
+        <label>Au </label><input id='dateFin' name="date2" value="{{dateFin | date("d/m/Y")}}" />
+</span>
+
+
+<span id="boutAct">
+        Actualiser
+</span>
+</div>
+
+<div id="graphiques">
+    <div id="chart_div1" style="width: 1200px; height: 400px;"></div>
+    <div id="chart_div2" style="width: 400px; height: 400px; margin-top: 10px"></div>
+</div>
+
+
+<script type="text/javascript">
+$("#dateDeb").datepicker();
+$("#dateFin").datepicker();
+var dateDeb= $('#dateDeb').val();
+var dateFin= $('#dateFin').val();
+$('#boutAct').button();
+var nbSeries;
+var type;
+var titreH;//titre de l'axe horizontal
+
+$(document).ready(function(){
+    envoiDonnees();
+   });
+
+$('#boutAct').click( function() {
+    dateDeb= $('#dateDeb').val();
+    dateFin= $('#dateFin').val();
+    $('#graphiques').hide();
+    envoiDonnees();
+});
+
+//requête ajax d'envoi des données au serveur
+function envoiDonnees() {
+    type = parseInt ($('#selectType').val());
+
+    switch (type) {
+        case 0:
+            nbSeries = 5;
+            titreH = 'Mois';
+            break;
+        case 1:
+            nbSeries = 1
+            titreH = 'Semaines';
+            break;
+        case 2:
+            nbSeries = 1
+            titreH = 'Dates';
+            break;
+    }
+
+    dateD = changeFormat(dateDeb);//date au format yyyy-mm-dd
+    dateF = changeFormat(dateFin);//date au format yyyy-mm-dd
+    
+    var DATADeb = 'dateDebut='+dateD;
+    var DATAFin = 'dateFin='+dateF;
+    
+    categorie = $('#selectCat').val();
+    //categorie
+    /*if (typeof(categorie)=='undefined' || categorie=="0"){
+       var DATAcat = '';
+    }else {
+        var DATAcat = 'catId='+categorie;
+    }*/
+    var DATAcat = 'catId='+categorie;
+    //type d'affichage
+    var type = $('#selectType').val();
+    var DATAtype = 'type='+type;
+
+    //les données à envoyer au serveur
+    DATA = DATADeb+'&'+DATAFin+'&'+DATAcat+'&'+DATAtype;
+    
+    $.ajax({
+        url: "{{ path('ResanetStatBundle_maj') }}",
+        cache: false,
+        data: DATA,
+        success: function(dat){
+                    tabReponse =JSON.parse(dat);
+                    drawVisualization(tabReponse['occupation'],'chart_div1');
+                    drawChart(tabReponse['ca'],'chart_div2');
+                    $('#graphiques').show();
+                 }
+    });
+}
+</script>
+
+
+<script type="text/javascript">
+google.load('visualization', '1', {packages: ['corechart']});
+google.setOnLoadCallback(drawChart,drawVisualization);
+//google.setOnLoadCallback(drawVisualization);
+</script>
+
+<script type="text/javascript">
+function drawVisualization(donnees,div) {
+    type = $('#selectType').val();
+    var data = google.visualization.arrayToDataTable(donnees);
+    var form;
+    var titreV;
+    if (type==0) {
+        form = '#,###';
+        titreV = 'Nombre';
+    }else {
+        form = '#,###%';
+        titreV = "Taux";
+    }
+    console.log(type);
+    var options = {
+    width: 1200, height: 400,
+    backgroundColor: '#FFFAF0',
+    seriesType: "bars",
+    series: {nbSeries: {type: "line"}},
+    title : 'Taux d\'occupation',
+    vAxis: {title: titreV,format:form,minValue:'0'},
+    hAxis: {title: titreH},
+    };
+
+    var chart = new google.visualization.ComboChart(document.getElementById(div));
+    chart.draw(data, options);
+}
+
+function drawChart(donnees,div) {
+    var data = new google.visualization.arrayToDataTable(donnees);
+
+    var options = {
+      width: 1200, height: 400,
+      backgroundColor: '#FFFAF0',
+      title: 'Chiffre d\'affaires',
+      vAxis: {title: "CA en Euros",format:'#,###€',minValue:'0'},
+      hAxis: {title: titreH}
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById(div));
+    chart.draw(data, options);
+}
+</script>
+{% endblock%}

@@ -1,0 +1,40 @@
+ResanetImpressionBundle:
+    resource: "@ResanetImpressionBundle/Resources/config/routing.yml"
+    prefix:   /
+
+ResanetBackendBundle:
+    resource: "@ResanetBackendBundle/Resources/config/routing.yml"
+    prefix:   /admin
+
+ResanetPlanningBundle:
+    resource: "@ResanetPlanningBundle/Resources/config/routing.yml"
+    prefix:   /
+
+ResanetUtilisateurBundle:
+    resource: "@ResanetUtilisateurBundle/Resources/config/routing.yml"
+    prefix:   /
+
+ResanetImageBundle:
+    resource: "@ResanetImageBundle/Resources/config/routing.yml"
+    prefix:   /admin
+
+ResanetPaiementBundle:
+    resource: "@ResanetPaiementBundle/Resources/config/routing.yml"
+    prefix:   /
+
+ResanetStatBundle:
+    resource: "@ResanetStatBundle/Resources/config/routing.yml"
+    prefix:   /admin
+
+ResanetSiteBundle:
+    resource: "@ResanetSiteBundle/Resources/config/routing.yml"
+    prefix:   /
+
+ResanetMainBundle:
+    resource: "@ResanetMainBundle/Resources/config/routing.yml"
+    prefix:   /admin
+
+# Internal routing configuration to handle ESI
+#_internal:
+#   resource: "@FrameworkBundle/Resources/config/routing/internal.xml"
+#   prefix:   /_internal
